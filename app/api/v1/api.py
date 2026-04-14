@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
+    auth,
     daily_statuses,
     dashboard,
     enterprises,
@@ -15,6 +16,7 @@ from app.api.v1.endpoints import (
 api_router = APIRouter()
 
 api_router.include_router(health.router, prefix="/health", tags=["Health"])
+api_router.include_router(auth.router, prefix="/auth", tags=["Auth"])
 api_router.include_router(specialties.router, prefix="/specialties", tags=["Specialties"])
 api_router.include_router(groups.router, prefix="/groups", tags=["Groups"])
 api_router.include_router(students.router, prefix="/students", tags=["Students"])

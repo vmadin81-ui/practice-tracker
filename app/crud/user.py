@@ -1,0 +1,84 @@
+from sqlalchemy import select
+from sqlalchemy.orm import Session, selectinload
+
+from app.core.security import get_password_hash, verify_password
+from app.models.study_group import StudyGroup
+from app.models.user import User
+from app.models.user_group_access import UserGroupAccess
+from app.schemas.user import UserCreate
+
+
+def get_user_by_username(db: Session, username: str) -> User | None:
+    stmt = (
+        select(User)
+        .options(selectinload(User.group_accesses))
+        .where(User.username == username)
+    )
+    return db.scalar(stmt)
+
+
+def get_user(db: Session, user_id: int) -> User | None:
+    stmt = (
+        select(User)
+        .options(selectinload(User.group_accesses))
+        .where(User.id == user_id)
+    )
+    return db.scalar(stmt)
+
+
+def list_users(db: Session) -> list[User]:
+    stmt = select(User).options(selectinload(User.group_accesses)).order_by(User.id)
+    return list(db.scalars(stmt).all())
+
+
+def authenticate_user(db: Session, username: str, password: str) -> User | None:
+    user = get_user_by_username(db, username)
+    if not user:
+        return None
+    if not user.is_active:
+        return None
+    if not verify_password(password, user.password_hash):
+        return None
+    return user
+
+
+def create_user(db: Session, payload: UserCreate) -> User:
+    existing = get_user_by_username(db, payload.username)
+    if existing:
+        raise ValueError("Username already exists")
+
+    if payload.role == "practice_supervisor" and not payload.group_ids:
+        raise ValueError("Practice supervisor must have at least one assigned group")
+
+    valid_group_ids: list[int] = []
+    if payload.group_ids:
+        groups = list(
+            db.scalars(
+                select(StudyGroup).where(StudyGroup.id.in_(payload.group_ids))
+            ).all()
+        )
+        valid_group_ids = [group.id for group in groups]
+        missing = set(payload.group_ids) - set(valid_group_ids)
+        if missing:
+            raise ValueError(f"Groups not found: {sorted(missing)}")
+
+    user = User(
+        username=payload.username.strip(),
+        password_hash=get_password_hash(payload.password),
+        full_name=payload.full_name.strip() if payload.full_name else None,
+        role=payload.role,
+        is_active=payload.is_active,
+    )
+    db.add(user)
+    db.flush()
+
+    for group_id in valid_group_ids:
+        db.add(UserGroupAccess(user_id=user.id, group_id=group_id))
+
+    db.commit()
+    db.refresh(user)
+    return get_user(db, user.id)
+
+
+def get_user_group_ids(user: User) -> list[int]:
+    return [item.group_id for item in user.group_accesses]

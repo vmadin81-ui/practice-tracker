@@ -16,10 +16,14 @@ class Settings(BaseSettings):
         "postgresql+psycopg://practice_user:practice_password@localhost:5432/practice_tracker"
     )
 
+    SECRET_KEY: str = "change_me_to_long_random_secret"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 8
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
-        case_sensitive=True
+        case_sensitive=True,
     )
 
 

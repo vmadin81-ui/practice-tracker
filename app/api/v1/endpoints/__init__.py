@@ -1,4 +1,5 @@
 from app.api.v1.endpoints import (
+    auth,
     daily_statuses,
     dashboard,
     enterprises,
@@ -12,6 +13,7 @@ from app.api.v1.endpoints import (
 
 __all__ = [
     "health",
+    "auth",
     "specialties",
     "groups",
     "students",

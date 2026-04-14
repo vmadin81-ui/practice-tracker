@@ -7,6 +7,8 @@ from app.models.specialty import Specialty
 from app.models.student import Student
 from app.models.student_daily_status import StudentDailyStatus
 from app.models.study_group import StudyGroup
+from app.models.user import User
+from app.models.user_group_access import UserGroupAccess
 
 __all__ = [
     "Base",
@@ -18,4 +20,6 @@ __all__ = [
     "GeolocationLog",
     "GeolocationCheck",
     "StudentDailyStatus",
+    "User",
+    "UserGroupAccess",
 ]
