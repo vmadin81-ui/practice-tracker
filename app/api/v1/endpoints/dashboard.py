@@ -4,14 +4,21 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
+from app.api.deps import ensure_group_access, get_current_user
 from app.core.database import get_db
 from app.models.enterprise import Enterprise
 from app.models.geolocation_log import GeolocationLog
-from app.models.student_daily_status import StudentDailyStatus
-from app.schemas.dashboard import DashboardMapResponse, DashboardSummaryResponse, MapEnterprisePoint, MapStudentPoint
-from app.services.dashboard_service import build_dashboard_summary
-from app.models.student import Student
 from app.models.practice_assignment import PracticeAssignment
+from app.models.student import Student
+from app.models.student_daily_status import StudentDailyStatus
+from app.models.user import User
+from app.schemas.dashboard import (
+    DashboardMapResponse,
+    DashboardSummaryResponse,
+    MapEnterprisePoint,
+    MapStudentPoint,
+)
+from app.services.dashboard_service import build_dashboard_summary
 
 router = APIRouter()
 
@@ -23,7 +30,10 @@ def get_dashboard_map(
     enterprise_id: int | None = Query(default=None),
     status_color: str | None = Query(default=None),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
+    ensure_group_access(group_id, current_user)
+
     stmt = (
         select(StudentDailyStatus)
         .options(
@@ -38,6 +48,14 @@ def get_dashboard_map(
         stmt = stmt.where(StudentDailyStatus.status_color == status_color)
 
     items = list(db.scalars(stmt).all())
+
+    if current_user.role != "admin":
+        allowed_group_ids = {item.group_id for item in current_user.group_accesses}
+        items = [
+            item
+            for item in items
+            if item.student and item.student.group_id in allowed_group_ids
+        ]
 
     if group_id is not None:
         items = [
@@ -109,10 +127,14 @@ def get_dashboard_summary(
     group_id: int | None = Query(default=None),
     enterprise_id: int | None = Query(default=None),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
+    ensure_group_access(group_id, current_user)
+
     return build_dashboard_summary(
         db,
         status_date=status_date,
         group_id=group_id,
         enterprise_id=enterprise_id,
+        current_user=current_user,
     )

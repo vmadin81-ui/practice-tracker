@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.models.practice_assignment import PracticeAssignment
 from app.models.student import Student
 from app.models.student_daily_status import StudentDailyStatus
+from app.models.user import User
 from app.schemas.dashboard import (
     DashboardSummaryResponse,
     EnterpriseSummaryItem,
@@ -43,6 +44,7 @@ def build_dashboard_summary(
     status_date: date,
     group_id: int | None = None,
     enterprise_id: int | None = None,
+    current_user: User,
 ) -> DashboardSummaryResponse:
     assignment_stmt = (
         select(PracticeAssignment)
@@ -58,6 +60,14 @@ def build_dashboard_summary(
     )
 
     assignments = list(db.scalars(assignment_stmt).all())
+
+    if current_user.role != "admin":
+        allowed_group_ids = {item.group_id for item in current_user.group_accesses}
+        assignments = [
+            item
+            for item in assignments
+            if item.student and item.student.group_id in allowed_group_ids
+        ]
 
     if group_id is not None:
         assignments = [
@@ -82,6 +92,14 @@ def build_dashboard_summary(
         .where(StudentDailyStatus.status_date == status_date)
     )
     statuses = list(db.scalars(status_stmt).all())
+
+    if current_user.role != "admin":
+        allowed_group_ids = {item.group_id for item in current_user.group_accesses}
+        statuses = [
+            item
+            for item in statuses
+            if item.student and item.student.group_id in allowed_group_ids
+        ]
 
     status_map: dict[tuple[int, int | None], StudentDailyStatus] = {
         (item.student_id, item.assignment_id): item for item in statuses

@@ -1,9 +1,14 @@
 import { extractErrorMessage } from '../utils/errors'
 
+const TOKEN_KEY = 'practice_tracker_token'
+
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = localStorage.getItem(TOKEN_KEY)
+
   const response = await fetch(path, {
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(init?.headers ?? {}),
     },
     ...init,

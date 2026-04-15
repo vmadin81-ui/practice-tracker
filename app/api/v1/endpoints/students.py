@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
+from app.api.deps import ensure_group_access, get_current_user, require_roles
 from app.core.database import get_db
 from app.crud.specialty import get_specialty
 from app.crud.student import (
@@ -12,6 +13,7 @@ from app.crud.student import (
 )
 from app.crud.study_group import get_group
 from app.models.practice_assignment import PracticeAssignment
+from app.models.user import User
 from app.schemas.common import MessageResponse, PaginatedResponse
 from app.schemas.student import StudentCreate, StudentReadDetailed, StudentUpdate
 
@@ -27,27 +29,56 @@ def list_students(
     specialty_id: int | None = None,
     is_active: bool | None = None,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
+    ensure_group_access(group_id, current_user)
+
+    if current_user.role == "admin":
+        effective_group_id = group_id
+        total, items = get_students(
+            db=db,
+            skip=skip,
+            limit=limit,
+            search=search,
+            group_id=effective_group_id,
+            specialty_id=specialty_id,
+            is_active=is_active,
+        )
+        return {"total": total, "items": items}
+
+    allowed_group_ids = {item.group_id for item in current_user.group_accesses}
     total, items = get_students(
         db=db,
-        skip=skip,
-        limit=limit,
+        skip=0,
+        limit=10000,
         search=search,
-        group_id=group_id,
+        group_id=None,
         specialty_id=specialty_id,
         is_active=is_active,
     )
-    return {"total": total, "items": items}
+    items = [item for item in items if item.group_id in allowed_group_ids]
+    if group_id is not None:
+        items = [item for item in items if item.group_id == group_id]
+
+    paged_items = items[skip: skip + limit]
+    return {"total": len(items), "items": paged_items}
 
 
 @router.get("/{student_id}", response_model=StudentReadDetailed)
 def retrieve_student(
     student_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     obj = get_student(db, student_id)
     if not obj:
         raise HTTPException(status_code=404, detail="Student not found")
+
+    if current_user.role != "admin":
+        allowed_group_ids = {item.group_id for item in current_user.group_accesses}
+        if obj.group_id not in allowed_group_ids:
+            raise HTTPException(status_code=403, detail="No access to student")
+
     return obj
 
 
@@ -55,7 +86,10 @@ def retrieve_student(
 def create_student_endpoint(
     payload: StudentCreate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("admin", "practice_supervisor")),
 ):
+    ensure_group_access(payload.group_id, current_user)
+
     if payload.group_id is not None and not get_group(db, payload.group_id):
         raise HTTPException(status_code=404, detail="Group not found")
 
@@ -70,13 +104,21 @@ def update_student_endpoint(
     student_id: int,
     payload: StudentUpdate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("admin", "practice_supervisor")),
 ):
     obj = get_student(db, student_id)
     if not obj:
         raise HTTPException(status_code=404, detail="Student not found")
 
-    if payload.group_id is not None and not get_group(db, payload.group_id):
-        raise HTTPException(status_code=404, detail="Group not found")
+    if current_user.role != "admin":
+        allowed_group_ids = {item.group_id for item in current_user.group_accesses}
+        if obj.group_id not in allowed_group_ids:
+            raise HTTPException(status_code=403, detail="No access to student")
+
+    if payload.group_id is not None:
+        ensure_group_access(payload.group_id, current_user)
+        if not get_group(db, payload.group_id):
+            raise HTTPException(status_code=404, detail="Group not found")
 
     if payload.specialty_id is not None and not get_specialty(db, payload.specialty_id):
         raise HTTPException(status_code=404, detail="Specialty not found")
@@ -88,6 +130,7 @@ def update_student_endpoint(
 def delete_student_endpoint(
     student_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles("admin")),
 ):
     obj = get_student(db, student_id)
     if not obj:

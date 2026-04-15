@@ -64,3 +64,21 @@ def get_current_user_group_ids(
     if current_user.role == "admin":
         return []
     return get_user_group_ids(current_user)
+
+
+def ensure_group_access(
+    requested_group_id: int | None,
+    current_user: User,
+) -> None:
+    if requested_group_id is None:
+        return
+
+    if current_user.role == "admin":
+        return
+
+    allowed_group_ids = get_user_group_ids(current_user)
+    if requested_group_id not in allowed_group_ids:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No access to requested group",
+        )

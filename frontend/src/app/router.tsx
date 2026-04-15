@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppLayout } from '../components/layout/AppLayout'
+import { ProtectedRoute } from '../components/auth/ProtectedRoute'
 import { DashboardPage } from '../pages/DashboardPage'
 import { MapPage } from '../pages/MapPage'
 import { DailyStatusesPage } from '../pages/DailyStatusesPage'
@@ -10,24 +11,105 @@ import { PracticeAssignmentsPage } from '../pages/PracticeAssignmentsPage'
 import { SpecialtiesPage } from '../pages/SpecialtiesPage'
 import { GeolocationLogsPage } from '../pages/GeolocationLogsPage'
 import { StudentDetailsPage } from '../pages/StudentDetailsPage'
+import { LoginPage } from '../pages/LoginPage'
 
 export const router = createBrowserRouter([
   {
+    path: '/login',
+    element: <LoginPage />,
+  },
+  {
     path: '/',
-    element: <AppLayout />,
+    element: (
+      <ProtectedRoute>
+        <AppLayout />
+      </ProtectedRoute>
+    ),
     children: [
       { index: true, element: <Navigate to="/dashboard" replace /> },
-      { path: 'dashboard', element: <DashboardPage /> },
-      { path: 'map', element: <MapPage /> },
-      { path: 'statuses', element: <DailyStatusesPage /> },
-      { path: 'geolocation-logs', element: <GeolocationLogsPage /> },
 
-      { path: 'students', element: <StudentsPage /> },
-      { path: 'students/:studentId', element: <StudentDetailsPage /> },
-      { path: 'groups', element: <GroupsPage /> },
-      { path: 'specialties', element: <SpecialtiesPage /> },
-      { path: 'enterprises', element: <EnterprisesPage /> },
-      { path: 'assignments', element: <PracticeAssignmentsPage /> },
+      {
+        path: 'dashboard',
+        element: (
+          <ProtectedRoute allowedRoles={['admin', 'practice_supervisor', 'viewer']}>
+            <DashboardPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'map',
+        element: (
+          <ProtectedRoute allowedRoles={['admin', 'practice_supervisor', 'viewer']}>
+            <MapPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'statuses',
+        element: (
+          <ProtectedRoute allowedRoles={['admin', 'practice_supervisor', 'viewer']}>
+            <DailyStatusesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'geolocation-logs',
+        element: (
+          <ProtectedRoute allowedRoles={['admin', 'practice_supervisor', 'viewer']}>
+            <GeolocationLogsPage />
+          </ProtectedRoute>
+        ),
+      },
+
+      {
+        path: 'students',
+        element: (
+          <ProtectedRoute allowedRoles={['admin', 'practice_supervisor', 'viewer']}>
+            <StudentsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'students/:studentId',
+        element: (
+          <ProtectedRoute allowedRoles={['admin', 'practice_supervisor', 'viewer']}>
+            <StudentDetailsPage />
+          </ProtectedRoute>
+        ),
+      },
+
+      {
+        path: 'groups',
+        element: (
+          <ProtectedRoute allowedRoles={['admin', 'practice_supervisor', 'viewer']}>
+            <GroupsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'specialties',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <SpecialtiesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'enterprises',
+        element: (
+          <ProtectedRoute allowedRoles={['admin', 'practice_supervisor', 'viewer']}>
+            <EnterprisesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'assignments',
+        element: (
+          <ProtectedRoute allowedRoles={['admin', 'practice_supervisor']}>
+            <PracticeAssignmentsPage />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
 ])
