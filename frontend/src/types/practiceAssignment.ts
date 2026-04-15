@@ -2,6 +2,7 @@ export type PracticeAssignmentItem = {
   id: number
   student_id: number
   enterprise_id: number
+  supervisor_user_id: number | null
   start_date: string
   end_date: string
   supervisor_name: string | null
@@ -22,11 +23,19 @@ export type PracticeAssignmentItem = {
     id: number
     name: string
   } | null
+  supervisor_user?: {
+    id: number
+    username: string
+    full_name: string | null
+    role: 'admin' | 'practice_supervisor' | 'viewer'
+    is_active: boolean
+  } | null
 }
 
 export type PracticeAssignmentCreatePayload = {
   student_id: number
   enterprise_id: number
+  supervisor_user_id?: number | null
   start_date: string
   end_date: string
   supervisor_name?: string | null

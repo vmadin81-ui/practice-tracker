@@ -12,6 +12,7 @@ import { SpecialtiesPage } from '../pages/SpecialtiesPage'
 import { GeolocationLogsPage } from '../pages/GeolocationLogsPage'
 import { StudentDetailsPage } from '../pages/StudentDetailsPage'
 import { LoginPage } from '../pages/LoginPage'
+import { UsersPage } from '../pages/UsersPage'
 
 export const router = createBrowserRouter([
   {
@@ -108,6 +109,14 @@ export const router = createBrowserRouter([
           <ProtectedRoute allowedRoles={['admin', 'practice_supervisor']}>
             <PracticeAssignmentsPage />
           </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'users',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+           <UsersPage />
+         </ProtectedRoute>
         ),
       },
     ],

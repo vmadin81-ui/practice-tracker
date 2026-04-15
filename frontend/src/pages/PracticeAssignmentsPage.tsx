@@ -6,6 +6,7 @@ import { PracticeAssignmentForm } from '../components/forms/PracticeAssignmentFo
 import { usePracticeAssignments } from '../hooks/usePracticeAssignments'
 import { useStudents } from '../hooks/useStudents'
 import { useEnterprises } from '../hooks/useEnterprises'
+import { useUsers } from '../hooks/useUsers'
 import {
   useCreatePracticeAssignment,
   useUpdatePracticeAssignment,
@@ -18,6 +19,7 @@ export function PracticeAssignmentsPage() {
   const { data, isLoading, error } = usePracticeAssignments()
   const studentsQuery = useStudents()
   const enterprisesQuery = useEnterprises()
+  const supervisorsQuery = useUsers('practice_supervisor')
   const createMutation = useCreatePracticeAssignment()
   const updateMutation = useUpdatePracticeAssignment()
   const toast = useToast()
@@ -55,6 +57,7 @@ export function PracticeAssignmentsPage() {
           <PracticeAssignmentForm
             students={studentsQuery.data?.items ?? []}
             enterprises={enterprisesQuery.data?.items ?? []}
+            supervisors={supervisorsQuery.data ?? []}
             initialValue={editing}
             onSubmit={async (payload) => {
               try {

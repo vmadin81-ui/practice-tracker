@@ -26,8 +26,10 @@ def get_user(db: Session, user_id: int) -> User | None:
     return db.scalar(stmt)
 
 
-def list_users(db: Session) -> list[User]:
+def list_users(db: Session, role: str | None = None) -> list[User]:
     stmt = select(User).options(selectinload(User.group_accesses)).order_by(User.id)
+    if role is not None:
+        stmt = stmt.where(User.role == role)
     return list(db.scalars(stmt).all())
 
 

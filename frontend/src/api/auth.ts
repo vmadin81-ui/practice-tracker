@@ -1,4 +1,5 @@
-import type { AuthUser, TokenResponse } from '../types/auth'
+import type { AuthUser, TokenResponse, UserCreatePayload, UserItem } from '../types/auth'
+import { apiRequest } from './client'
 
 export async function loginRequest(username: string, password: string): Promise<TokenResponse> {
   const form = new URLSearchParams()
@@ -34,4 +35,16 @@ export async function getCurrentUser(token: string): Promise<AuthUser> {
   }
 
   return response.json()
+}
+
+export function getUsers(role?: string) {
+  const suffix = role ? `?role=${encodeURIComponent(role)}` : ''
+  return apiRequest<UserItem[]>(`/api/v1/auth/users${suffix}`)
+}
+
+export function createUser(payload: UserCreatePayload) {
+  return apiRequest<UserItem>('/api/v1/auth/users', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
 }

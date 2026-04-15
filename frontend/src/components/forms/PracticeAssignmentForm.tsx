@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { UserItem } from '../../types/auth'
 import type { EnterpriseItem } from '../../types/enterprises'
 import type {
   PracticeAssignmentCreatePayload,
@@ -9,6 +10,7 @@ import type { StudentItem } from '../../types/students'
 type Props = {
   students: StudentItem[]
   enterprises: EnterpriseItem[]
+  supervisors: UserItem[]
   initialValue?: PracticeAssignmentItem | null
   onSubmit: (payload: PracticeAssignmentCreatePayload) => Promise<void> | void
 }
@@ -16,12 +18,16 @@ type Props = {
 export function PracticeAssignmentForm({
   students,
   enterprises,
+  supervisors,
   initialValue,
   onSubmit,
 }: Props) {
   const [studentId, setStudentId] = useState(initialValue?.student_id?.toString() ?? '')
   const [enterpriseId, setEnterpriseId] = useState(
     initialValue?.enterprise_id?.toString() ?? ''
+  )
+  const [supervisorUserId, setSupervisorUserId] = useState(
+    initialValue?.supervisor_user_id?.toString() ?? ''
   )
   const [startDate, setStartDate] = useState(initialValue?.start_date ?? '')
   const [endDate, setEndDate] = useState(initialValue?.end_date ?? '')
@@ -53,6 +59,7 @@ export function PracticeAssignmentForm({
         await onSubmit({
           student_id: Number(studentId),
           enterprise_id: Number(enterpriseId),
+          supervisor_user_id: supervisorUserId ? Number(supervisorUserId) : null,
           start_date: startDate,
           end_date: endDate,
           supervisor_name: supervisorName || null,
@@ -95,6 +102,21 @@ export function PracticeAssignmentForm({
       </label>
 
       <label>
+        Руководитель практики
+        <select
+          value={supervisorUserId}
+          onChange={(e) => setSupervisorUserId(e.target.value)}
+        >
+          <option value="">Не выбрано</option>
+          {supervisors.map((supervisor) => (
+            <option key={supervisor.id} value={String(supervisor.id)}>
+              {supervisor.full_name ?? supervisor.username}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label>
         Дата начала
         <input
           type="date"
@@ -115,7 +137,7 @@ export function PracticeAssignmentForm({
       </label>
 
       <label>
-        Руководитель
+        Руководитель (текст)
         <input
           value={supervisorName}
           onChange={(e) => setSupervisorName(e.target.value)}

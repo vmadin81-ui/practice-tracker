@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -57,10 +57,11 @@ def me(current_user: User = Depends(get_current_user)):
 
 @router.get("/users", response_model=list[UserRead])
 def get_users(
+    role: str | None = Query(default=None),
     _: User = Depends(require_roles("admin")),
     db: Session = Depends(get_db),
 ):
-    return [_to_user_read(user) for user in list_users(db)]
+    return [_to_user_read(user) for user in list_users(db, role=role)]
 
 
 @router.post("/users", response_model=UserRead, status_code=status.HTTP_201_CREATED)

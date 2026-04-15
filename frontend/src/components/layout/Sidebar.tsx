@@ -31,14 +31,20 @@ export function Sidebar() {
         </NavLink>
 
         <div className="sidebar-section">Справочники</div>
-
+        
+        {isAdmin && (
+          <NavLink to="/users" className="sidebar-link">
+            Пользователи
+          </NavLink>
+        )}
+        
         <NavLink to="/students" className="sidebar-link">
           Студенты
         </NavLink>
         <NavLink to="/groups" className="sidebar-link">
           Группы
         </NavLink>
-
+                    
         {isAdmin && (
           <NavLink to="/specialties" className="sidebar-link">
             Специальности

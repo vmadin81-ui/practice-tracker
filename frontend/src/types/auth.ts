@@ -11,6 +11,17 @@ export type AuthUser = {
   group_ids: number[]
 }
 
+export type UserItem = AuthUser
+
+export type UserCreatePayload = {
+  username: string
+  password: string
+  full_name?: string | null
+  role: UserRole
+  is_active: boolean
+  group_ids: number[]
+}
+
 export type TokenResponse = {
   access_token: string
   token_type: string

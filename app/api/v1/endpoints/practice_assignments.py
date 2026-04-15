@@ -1,8 +1,7 @@
-from datetime import date
-
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
+from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.crud.enterprise import get_enterprise
 from app.crud.practice_assignment import (
@@ -14,6 +13,8 @@ from app.crud.practice_assignment import (
     update_practice_assignment,
 )
 from app.crud.student import get_student
+from app.crud.user import get_user
+from app.models.user import User
 from app.schemas.common import MessageResponse, PaginatedResponse
 from app.schemas.practice_assignment import (
     PracticeAssignmentCreate,
@@ -32,6 +33,7 @@ def list_practice_assignments(
     enterprise_id: int | None = None,
     is_active: bool | None = None,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     total, items = get_practice_assignments(
         db=db,
@@ -48,6 +50,7 @@ def list_practice_assignments(
 def retrieve_practice_assignment(
     assignment_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     obj = get_practice_assignment(db, assignment_id)
     if not obj:
@@ -63,12 +66,23 @@ def retrieve_practice_assignment(
 def create_practice_assignment_endpoint(
     payload: PracticeAssignmentCreate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
+    if current_user.role not in {"admin", "practice_supervisor"}:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+
     if not get_student(db, payload.student_id):
         raise HTTPException(status_code=404, detail="Student not found")
 
     if not get_enterprise(db, payload.enterprise_id):
         raise HTTPException(status_code=404, detail="Enterprise not found")
+
+    if payload.supervisor_user_id is not None:
+        supervisor = get_user(db, payload.supervisor_user_id)
+        if not supervisor:
+            raise HTTPException(status_code=404, detail="Supervisor user not found")
+        if supervisor.role != "practice_supervisor":
+            raise HTTPException(status_code=400, detail="Selected user is not a practice supervisor")
 
     if has_assignment_overlap(
         db,
@@ -89,7 +103,11 @@ def update_practice_assignment_endpoint(
     assignment_id: int,
     payload: PracticeAssignmentUpdate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
+    if current_user.role not in {"admin", "practice_supervisor"}:
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+
     obj = get_practice_assignment(db, assignment_id)
     if not obj:
         raise HTTPException(status_code=404, detail="Practice assignment not found")
@@ -115,6 +133,13 @@ def update_practice_assignment_endpoint(
     if not get_enterprise(db, new_enterprise_id):
         raise HTTPException(status_code=404, detail="Enterprise not found")
 
+    if payload.supervisor_user_id is not None:
+        supervisor = get_user(db, payload.supervisor_user_id)
+        if not supervisor:
+            raise HTTPException(status_code=404, detail="Supervisor user not found")
+        if supervisor.role != "practice_supervisor":
+            raise HTTPException(status_code=400, detail="Selected user is not a practice supervisor")
+
     if has_assignment_overlap(
         db,
         student_id=new_student_id,
@@ -134,7 +159,11 @@ def update_practice_assignment_endpoint(
 def delete_practice_assignment_endpoint(
     assignment_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+
     obj = get_practice_assignment(db, assignment_id)
     if not obj:
         raise HTTPException(status_code=404, detail="Practice assignment not found")

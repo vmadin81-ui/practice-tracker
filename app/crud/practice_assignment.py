@@ -2,6 +2,7 @@ from sqlalchemy import and_, func, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.models.practice_assignment import PracticeAssignment
+from app.models.user import User
 from app.schemas.practice_assignment import (
     PracticeAssignmentCreate,
     PracticeAssignmentUpdate,
@@ -17,6 +18,7 @@ def get_practice_assignment(
         .options(
             selectinload(PracticeAssignment.student),
             selectinload(PracticeAssignment.enterprise),
+            selectinload(PracticeAssignment.supervisor_user),
         )
         .where(PracticeAssignment.id == assignment_id)
     )
@@ -34,6 +36,7 @@ def get_practice_assignments(
     stmt = select(PracticeAssignment).options(
         selectinload(PracticeAssignment.student),
         selectinload(PracticeAssignment.enterprise),
+        selectinload(PracticeAssignment.supervisor_user),
     )
 
     if student_id is not None:

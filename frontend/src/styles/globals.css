@@ -615,3 +615,17 @@ a {
 .sidebar-logout-btn {
   width: 100%;
 }
+.form-section-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.checkbox-list {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  max-height: 220px;
+  overflow: auto;
+}

@@ -22,6 +22,12 @@ class PracticeAssignment(Base):
         index=True,
     )
 
+    supervisor_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+
     start_date: Mapped[date] = mapped_column(Date, nullable=False)
     end_date: Mapped[date] = mapped_column(Date, nullable=False)
 
@@ -60,9 +66,4 @@ class PracticeAssignment(Base):
 
     student: Mapped["Student"] = relationship(back_populates="practice_assignments")
     enterprise: Mapped["Enterprise"] = relationship(back_populates="practice_assignments")
-
-    def __repr__(self) -> str:
-        return (
-            f"PracticeAssignment(id={self.id!r}, student_id={self.student_id!r}, "
-            f"enterprise_id={self.enterprise_id!r})"
-        )
+    supervisor_user: Mapped["User | None"] = relationship()

@@ -5,11 +5,13 @@ from pydantic import Field, model_validator
 from app.schemas.common import ORMBaseSchema
 from app.schemas.enterprise import EnterpriseRead
 from app.schemas.student import StudentRead
+from app.schemas.user import UserShort
 
 
 class PracticeAssignmentBase(ORMBaseSchema):
     student_id: int = Field(..., gt=0)
     enterprise_id: int = Field(..., gt=0)
+    supervisor_user_id: int | None = Field(default=None, gt=0)
 
     start_date: date
     end_date: date
@@ -60,6 +62,7 @@ class PracticeAssignmentCreate(PracticeAssignmentBase):
 class PracticeAssignmentUpdate(ORMBaseSchema):
     student_id: int | None = Field(default=None, gt=0)
     enterprise_id: int | None = Field(default=None, gt=0)
+    supervisor_user_id: int | None = Field(default=None, gt=0)
 
     start_date: date | None = None
     end_date: date | None = None
@@ -102,6 +105,7 @@ class PracticeAssignmentReadDetailed(ORMBaseSchema):
     id: int
     student_id: int
     enterprise_id: int
+    supervisor_user_id: int | None
     start_date: date
     end_date: date
     supervisor_name: str | None
@@ -116,3 +120,4 @@ class PracticeAssignmentReadDetailed(ORMBaseSchema):
     updated_at: datetime
     student: StudentRead | None = None
     enterprise: EnterpriseRead | None = None
+    supervisor_user: UserShort | None = None
