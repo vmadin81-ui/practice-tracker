@@ -44,6 +44,7 @@ def build_dashboard_summary(
     status_date: date,
     group_id: int | None = None,
     enterprise_id: int | None = None,
+    status_color: str | None = None,
     current_user: User,
 ) -> DashboardSummaryResponse:
     assignment_stmt = (
@@ -101,6 +102,13 @@ def build_dashboard_summary(
             if item.student and item.student.group_id in allowed_group_ids
         ]
 
+    if status_color is not None:
+        statuses = [
+            item
+            for item in statuses
+            if item.status_color == status_color
+        ]
+
     status_map: dict[tuple[int, int | None], StudentDailyStatus] = {
         (item.student_id, item.assignment_id): item for item in statuses
     }
@@ -112,6 +120,12 @@ def build_dashboard_summary(
     for assignment in assignments:
         student = assignment.student
         enterprise = assignment.enterprise
+
+        status_item = status_map.get((assignment.student_id, assignment.id))
+
+        if status_color is not None:
+            if not status_item or status_item.status_color != status_color:
+                continue
 
         group_key = (
             student.group.id if student and student.group else None,

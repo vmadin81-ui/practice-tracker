@@ -4,7 +4,7 @@ import type {
   StudentCreatePayload,
   StudentItem,
   StudentUpdatePayload,
-} from '../types/students'
+} from '../types/student'
 
 export function getStudents() {
   return apiRequest<PaginatedResponse<StudentItem>>('/api/v1/students/?skip=0&limit=500')

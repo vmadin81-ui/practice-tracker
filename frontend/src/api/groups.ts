@@ -1,6 +1,6 @@
 import { apiRequest } from './client'
 import type { PaginatedResponse } from '../types/common'
-import type { GroupCreatePayload, GroupItem, GroupUpdatePayload } from '../types/groups'
+import type { GroupCreatePayload, GroupItem, GroupUpdatePayload } from '../types/group'
 
 export function getGroups() {
   return apiRequest<PaginatedResponse<GroupItem>>('/api/v1/groups/?skip=0&limit=500')
@@ -18,4 +18,3 @@ export function updateGroup(groupId: number, payload: GroupUpdatePayload) {
     method: 'PUT',
     body: JSON.stringify(payload),
   })
-}

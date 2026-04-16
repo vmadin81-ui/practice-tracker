@@ -126,6 +126,7 @@ def get_dashboard_summary(
     status_date: date = Query(...),
     group_id: int | None = Query(default=None),
     enterprise_id: int | None = Query(default=None),
+    status_color: str | None = Query(default=None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -136,5 +137,6 @@ def get_dashboard_summary(
         status_date=status_date,
         group_id=group_id,
         enterprise_id=enterprise_id,
+        status_color=status_color,
         current_user=current_user,
     )

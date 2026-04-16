@@ -27,7 +27,8 @@ export function DashboardPage() {
   const { data, isLoading, error } = useDashboardSummary(
     statusDate,
     numericGroupId,
-    numericEnterpriseId
+    numericEnterpriseId,
+    statusColor || undefined
   )
 
   const recalcMutation = useRecalculateStatuses(statusDate)
