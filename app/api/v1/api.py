@@ -13,6 +13,20 @@ from app.api.v1.endpoints import (
     students,
 )
 
+from app.api.v1.endpoints import (
+    auth,
+    daily_statuses,
+    dashboard,
+    enterprises,
+    geolocation,
+    groups,
+    health,
+    practice_assignments,
+    specialties,
+    student_checkin,
+    students,
+)
+
 api_router = APIRouter()
 
 api_router.include_router(health.router, prefix="/health", tags=["Health"])
@@ -40,4 +54,9 @@ api_router.include_router(
     dashboard.router,
     prefix="/dashboard",
     tags=["Dashboard"],
+)
+api_router.include_router(
+    student_checkin.router,
+    prefix="/student-checkin",
+    tags=["Student Check-in"],
 )

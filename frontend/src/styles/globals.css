@@ -629,3 +629,52 @@ a {
   max-height: 220px;
   overflow: auto;
 }
+.student-checkin-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 16px;
+  display: grid;
+  gap: 16px;
+}
+
+.student-checkin-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+}
+
+.student-checkin-subtitle {
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.student-checkin-grid {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.student-checkin-status {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.student-checkin-btn {
+  margin-top: 16px;
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+}
+
+.student-checkin-result {
+  margin-top: 16px;
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #f9fafb;
+}

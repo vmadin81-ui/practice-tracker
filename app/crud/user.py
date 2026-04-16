@@ -5,7 +5,7 @@ from app.core.security import get_password_hash, verify_password
 from app.models.study_group import StudyGroup
 from app.models.user import User
 from app.models.user_group_access import UserGroupAccess
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserUpdate
 
 
 def get_user_by_username(db: Session, username: str) -> User | None:
@@ -76,6 +76,50 @@ def create_user(db: Session, payload: UserCreate) -> User:
 
     for group_id in valid_group_ids:
         db.add(UserGroupAccess(user_id=user.id, group_id=group_id))
+
+    db.commit()
+    db.refresh(user)
+    return get_user(db, user.id)
+
+
+def update_user(db: Session, user: User, payload: UserUpdate) -> User:
+    data = payload.model_dump(exclude_unset=True)
+
+    if "role" in data and data["role"] == "practice_supervisor":
+        group_ids = data.get("group_ids", [item.group_id for item in user.group_accesses])
+        if not group_ids:
+            raise ValueError("Practice supervisor must have at least one assigned group")
+
+    if "full_name" in data:
+        user.full_name = data["full_name"].strip() if data["full_name"] else None
+
+    if "role" in data and data["role"] is not None:
+        user.role = data["role"]
+
+    if "is_active" in data and data["is_active"] is not None:
+        user.is_active = data["is_active"]
+
+    if "password" in data and data["password"]:
+        user.password_hash = get_password_hash(data["password"])
+
+    if "group_ids" in data and data["group_ids"] is not None:
+        requested_group_ids = data["group_ids"]
+
+        valid_groups = list(
+            db.scalars(
+                select(StudyGroup).where(StudyGroup.id.in_(requested_group_ids))
+            ).all()
+        )
+        valid_group_ids = [group.id for group in valid_groups]
+        missing = set(requested_group_ids) - set(valid_group_ids)
+        if missing:
+            raise ValueError(f"Groups not found: {sorted(missing)}")
+
+        db.query(UserGroupAccess).filter(UserGroupAccess.user_id == user.id).delete()
+        db.flush()
+
+        for group_id in valid_group_ids:
+            db.add(UserGroupAccess(user_id=user.id, group_id=group_id))
 
     db.commit()
     db.refresh(user)

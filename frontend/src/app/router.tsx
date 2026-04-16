@@ -13,12 +13,24 @@ import { GeolocationLogsPage } from '../pages/GeolocationLogsPage'
 import { StudentDetailsPage } from '../pages/StudentDetailsPage'
 import { LoginPage } from '../pages/LoginPage'
 import { UsersPage } from '../pages/UsersPage'
+import { StudentCheckinPage } from '../pages/StudentCheckinPage'
+import { StudentCheckinStartPage } from '../pages/StudentCheckinStartPage'
 
 export const router = createBrowserRouter([
   {
     path: '/login',
     element: <LoginPage />,
   },
+
+  {
+    path: '/student-checkin/start',
+    element: <StudentCheckinStartPage />,
+  },
+  {
+    path: '/student-checkin',
+    element: <StudentCheckinPage />,
+  },
+
   {
     path: '/',
     element: (
@@ -61,7 +73,6 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-
       {
         path: 'students',
         element: (
@@ -78,7 +89,6 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-
       {
         path: 'groups',
         element: (
@@ -115,8 +125,8 @@ export const router = createBrowserRouter([
         path: 'users',
         element: (
           <ProtectedRoute allowedRoles={['admin']}>
-           <UsersPage />
-         </ProtectedRoute>
+            <UsersPage />
+          </ProtectedRoute>
         ),
       },
     ],

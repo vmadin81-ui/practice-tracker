@@ -10,12 +10,14 @@ from app.core.security import create_access_token
 from app.crud.user import (
     authenticate_user,
     create_user,
+    get_user,
     get_user_group_ids,
     list_users,
+    update_user,
 )
 from app.models.user import User
 from app.schemas.auth import TokenResponse
-from app.schemas.user import UserCreate, UserRead
+from app.schemas.user import UserCreate, UserRead, UserUpdate
 
 router = APIRouter()
 
@@ -73,5 +75,23 @@ def create_user_endpoint(
     try:
         user = create_user(db, payload)
         return _to_user_read(user)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.put("/users/{user_id}", response_model=UserRead)
+def update_user_endpoint(
+    user_id: int,
+    payload: UserUpdate,
+    _: User = Depends(require_roles("admin")),
+    db: Session = Depends(get_db),
+):
+    user = get_user(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    try:
+        updated = update_user(db, user, payload)
+        return _to_user_read(updated)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

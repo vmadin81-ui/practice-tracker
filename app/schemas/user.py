@@ -26,6 +26,14 @@ class UserCreate(BaseModel):
     group_ids: list[int] = Field(default_factory=list)
 
 
+class UserUpdate(BaseModel):
+    password: str | None = Field(default=None, min_length=6, max_length=128)
+    full_name: str | None = Field(default=None, max_length=255)
+    role: UserRole | None = None
+    is_active: bool | None = None
+    group_ids: list[int] | None = None
+
+
 class UserRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

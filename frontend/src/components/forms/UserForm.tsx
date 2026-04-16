@@ -4,16 +4,21 @@ import type { UserCreatePayload, UserItem, UserRole } from '../../types/auth'
 
 type Props = {
   groups: GroupItem[]
-  onSubmit: (payload: UserCreatePayload) => Promise<void> | void
+  initialValue?: UserItem | null
+  onSubmit: (
+    payload: Partial<UserCreatePayload> & { password?: string | null }
+  ) => Promise<void> | void
 }
 
-export function UserForm({ groups, onSubmit }: Props) {
-  const [username, setUsername] = useState('')
+export function UserForm({ groups, initialValue, onSubmit }: Props) {
+  const [username] = useState(initialValue?.username ?? '')
   const [password, setPassword] = useState('')
-  const [fullName, setFullName] = useState('')
-  const [role, setRole] = useState<UserRole>('viewer')
-  const [isActive, setIsActive] = useState(true)
-  const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([])
+  const [fullName, setFullName] = useState(initialValue?.full_name ?? '')
+  const [role, setRole] = useState<UserRole>(initialValue?.role ?? 'viewer')
+  const [isActive, setIsActive] = useState(initialValue?.is_active ?? true)
+  const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>(
+    initialValue?.group_ids?.map(String) ?? []
+  )
 
   function toggleGroup(groupId: string) {
     setSelectedGroupIds((prev) =>
@@ -26,28 +31,36 @@ export function UserForm({ groups, onSubmit }: Props) {
       className="entity-form"
       onSubmit={async (e) => {
         e.preventDefault()
-        await onSubmit({
-          username,
-          password,
+
+        const payload: Partial<UserCreatePayload> & { password?: string | null } = {
           full_name: fullName || null,
           role,
           is_active: isActive,
           group_ids: selectedGroupIds.map(Number),
-        })
+        }
+
+        if (!initialValue) {
+          payload.username = username
+          payload.password = password
+        } else if (password.trim()) {
+          payload.password = password
+        }
+
+        await onSubmit(payload)
       }}
     >
       <label>
         Логин
-        <input value={username} onChange={(e) => setUsername(e.target.value)} required />
+        <input value={username} disabled />
       </label>
 
       <label>
-        Пароль
+        Новый пароль {initialValue ? '(необязательно)' : ''}
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          required
+          required={!initialValue}
         />
       </label>
 

@@ -48,3 +48,13 @@ export function createUser(payload: UserCreatePayload) {
     body: JSON.stringify(payload),
   })
 }
+
+export function updateUser(
+  userId: number,
+  payload: Partial<UserCreatePayload> & { password?: string | null }
+) {
+  return apiRequest<UserItem>(`/api/v1/auth/users/${userId}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+}

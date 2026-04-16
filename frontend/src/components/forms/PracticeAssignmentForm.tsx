@@ -31,12 +31,6 @@ export function PracticeAssignmentForm({
   )
   const [startDate, setStartDate] = useState(initialValue?.start_date ?? '')
   const [endDate, setEndDate] = useState(initialValue?.end_date ?? '')
-  const [supervisorName, setSupervisorName] = useState(
-    initialValue?.supervisor_name ?? ''
-  )
-  const [supervisorPhone, setSupervisorPhone] = useState(
-    initialValue?.supervisor_phone ?? ''
-  )
   const [monitoringMode, setMonitoringMode] = useState(
     initialValue?.monitoring_mode ?? 'daily_once'
   )
@@ -62,8 +56,8 @@ export function PracticeAssignmentForm({
           supervisor_user_id: supervisorUserId ? Number(supervisorUserId) : null,
           start_date: startDate,
           end_date: endDate,
-          supervisor_name: supervisorName || null,
-          supervisor_phone: supervisorPhone || null,
+          supervisor_name: null,
+          supervisor_phone: null,
           monitoring_mode: monitoringMode,
           required_checkins_per_day: Number(requiredCheckins),
           allowed_start_time: allowedStartTime || null,
@@ -133,22 +127,6 @@ export function PracticeAssignmentForm({
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
           required
-        />
-      </label>
-
-      <label>
-        Руководитель (текст)
-        <input
-          value={supervisorName}
-          onChange={(e) => setSupervisorName(e.target.value)}
-        />
-      </label>
-
-      <label>
-        Телефон руководителя
-        <input
-          value={supervisorPhone}
-          onChange={(e) => setSupervisorPhone(e.target.value)}
         />
       </label>
 

@@ -9,6 +9,8 @@ from app.models.student_daily_status import StudentDailyStatus
 from app.models.study_group import StudyGroup
 from app.models.user import User
 from app.models.user_group_access import UserGroupAccess
+from app.models.student_access_link import StudentAccessLink
+from app.models.student_checkin_session import StudentCheckinSession
 
 __all__ = [
     "Base",
@@ -22,4 +24,6 @@ __all__ = [
     "StudentDailyStatus",
     "User",
     "UserGroupAccess",
+    "StudentAccessLink",
+    "StudentCheckinSession",
 ]
