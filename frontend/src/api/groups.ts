@@ -18,3 +18,4 @@ export function updateGroup(groupId: number, payload: GroupUpdatePayload) {
     method: 'PUT',
     body: JSON.stringify(payload),
   })
+}
