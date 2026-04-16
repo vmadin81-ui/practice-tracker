@@ -1,6 +1,6 @@
 import { apiRequest } from './client'
 import type { PaginatedResponse } from '../types/common'
-import type { GroupCreatePayload, GroupItem, GroupUpdatePayload } from '../types/group'
+import type { GroupCreatePayload, GroupItem, GroupUpdatePayload } from '../types/groups'
 
 export function getGroups() {
   return apiRequest<PaginatedResponse<GroupItem>>('/api/v1/groups/?skip=0&limit=500')
