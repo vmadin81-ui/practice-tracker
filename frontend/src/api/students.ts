@@ -2,6 +2,7 @@ import { apiRequest } from './client'
 import type { PaginatedResponse } from '../types/common'
 import type {
   StudentCreatePayload,
+  StudentItem,
   StudentUpdatePayload,
 } from '../types/student'
 
