@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useSearchParams, Navigate } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { startStudentCheckinSession, saveStudentToken } from '../api/studentCheckin'
 import { useToast } from '../hooks/useToast'
 import { extractErrorMessage } from '../utils/errors'
