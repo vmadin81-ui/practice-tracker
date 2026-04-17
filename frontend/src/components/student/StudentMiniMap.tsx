@@ -1,4 +1,4 @@
-import { Circle, MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 import type { GeolocationLogItem } from '../../types/geolocation'
 import { getMarkerIcon } from '../map/leafletIcons'
 
