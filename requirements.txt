@@ -1,7 +1,10 @@
-fastapi[standard]
+fastapi
+uvicorn[standard]
 sqlalchemy
-alembic
 psycopg[binary]
+alembic
+pydantic
 pydantic-settings
-python-dotenv
+python-multipart
+pwdlib[argon2]
 pyjwt
