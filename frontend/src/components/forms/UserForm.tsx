@@ -11,7 +11,9 @@ type Props = {
 }
 
 export function UserForm({ groups, initialValue, onSubmit }: Props) {
-  const [username] = useState(initialValue?.username ?? '')
+  const isEditMode = Boolean(initialValue)
+
+  const [username, setUsername] = useState(initialValue?.username ?? '')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState(initialValue?.full_name ?? '')
   const [role, setRole] = useState<UserRole>(initialValue?.role ?? 'viewer')
@@ -36,11 +38,11 @@ export function UserForm({ groups, initialValue, onSubmit }: Props) {
           full_name: fullName || null,
           role,
           is_active: isActive,
-          group_ids: selectedGroupIds.map(Number),
+          group_ids: role === 'practice_supervisor' ? selectedGroupIds.map(Number) : [],
         }
 
-        if (!initialValue) {
-          payload.username = username
+        if (!isEditMode) {
+          payload.username = username.trim()
           payload.password = password
         } else if (password.trim()) {
           payload.password = password
@@ -51,16 +53,21 @@ export function UserForm({ groups, initialValue, onSubmit }: Props) {
     >
       <label>
         Логин
-        <input value={username} disabled />
+        <input
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          disabled={isEditMode}
+          required={!isEditMode}
+        />
       </label>
 
       <label>
-        Новый пароль {initialValue ? '(необязательно)' : ''}
+        {isEditMode ? 'Новый пароль (необязательно)' : 'Пароль'}
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          required={!initialValue}
+          required={!isEditMode}
         />
       </label>
 
