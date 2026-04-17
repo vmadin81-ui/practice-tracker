@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom'
-import { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 
 type Props = PropsWithChildren<{
