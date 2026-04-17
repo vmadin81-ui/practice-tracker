@@ -47,14 +47,6 @@ export function StudentMiniMap({ items }: Props) {
             </Popup>
           </Marker>
         ))}
-
-        {validItems.map((item) =>
-          item.check?.distance_m && item.check.enterprise_id ? null : null
-        )}
-
-        {validItems
-          .filter((item) => item.assignment?.enterprise_id && item.check?.distance_m !== null)
-          .map((item) => null)}
       </MapContainer>
     </div>
   )
