@@ -678,3 +678,28 @@ a {
   border-radius: 12px;
   background: #f9fafb;
 }
+.qr-card-subtitle {
+  color: #6b7280;
+  margin-bottom: 16px;
+}
+
+.qr-card-box {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+.qr-link-box {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f3f4f6;
+  word-break: break-all;
+  font-size: 13px;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}

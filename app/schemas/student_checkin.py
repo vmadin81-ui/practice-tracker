@@ -6,7 +6,9 @@ from pydantic import BaseModel, Field
 
 class StudentCheckinSessionStartRequest(BaseModel):
     access_token: str = Field(..., min_length=16)
+    device_id: str | None = Field(default=None, max_length=255)
     device_label: str | None = Field(default=None, max_length=255)
+    user_agent: str | None = Field(default=None, max_length=1000)
 
 
 class StudentCheckinSessionStartResponse(BaseModel):
@@ -34,6 +36,9 @@ class StudentCheckinSubmitRequest(BaseModel):
     longitude: Decimal = Field(..., ge=-180, le=180)
     accuracy_m: Decimal | None = Field(default=None, ge=0, le=10000)
     device_time: datetime | None = None
+    device_id: str | None = Field(default=None, max_length=255)
+    device_label: str | None = Field(default=None, max_length=255)
+    user_agent: str | None = Field(default=None, max_length=1000)
 
 
 class StudentCheckinSubmitResponse(BaseModel):

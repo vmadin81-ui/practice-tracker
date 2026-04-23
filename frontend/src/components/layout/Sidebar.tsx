@@ -41,10 +41,17 @@ export function Sidebar() {
         <NavLink to="/students" className="sidebar-link">
           Студенты
         </NavLink>
+        
+        {canEditAssignments && (
+          <NavLink to="/student-access-links" className="sidebar-link">
+            Ссылки check-in
+          </NavLink>
+        )}
+        
         <NavLink to="/groups" className="sidebar-link">
           Группы
         </NavLink>
-                    
+        
         {isAdmin && (
           <NavLink to="/specialties" className="sidebar-link">
             Специальности

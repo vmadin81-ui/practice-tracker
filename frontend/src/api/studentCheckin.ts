@@ -6,6 +6,7 @@ import type {
 } from '../types/studentCheckin'
 
 const STUDENT_TOKEN_KEY = 'student_checkin_token'
+const STUDENT_DEVICE_ID_KEY = 'student_checkin_device_id'
 
 function getStudentToken() {
   return localStorage.getItem(STUDENT_TOKEN_KEY)
@@ -13,6 +14,23 @@ function getStudentToken() {
 
 export function saveStudentToken(token: string) {
   localStorage.setItem(STUDENT_TOKEN_KEY, token)
+}
+
+function generateDeviceId() {
+  return `device-${crypto.randomUUID()}`
+}
+
+export function getOrCreateDeviceId() {
+  let value = localStorage.getItem(STUDENT_DEVICE_ID_KEY)
+  if (!value) {
+    value = generateDeviceId()
+    localStorage.setItem(STUDENT_DEVICE_ID_KEY, value)
+  }
+  return value
+}
+
+function getDeviceLabel() {
+  return `${navigator.platform || 'unknown'} | ${navigator.userAgent}`
 }
 
 export async function startStudentCheckinSession(accessToken: string) {
@@ -23,7 +41,9 @@ export async function startStudentCheckinSession(accessToken: string) {
     },
     body: JSON.stringify({
       access_token: accessToken,
-      device_label: navigator.userAgent,
+      device_id: getOrCreateDeviceId(),
+      device_label: getDeviceLabel(),
+      user_agent: navigator.userAgent,
     }),
   })
 
@@ -63,7 +83,12 @@ export async function submitStudentCheckin(params: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(params),
+    body: JSON.stringify({
+      ...params,
+      device_id: getOrCreateDeviceId(),
+      device_label: getDeviceLabel(),
+      user_agent: navigator.userAgent,
+    }),
   })
 
   if (!response.ok) {

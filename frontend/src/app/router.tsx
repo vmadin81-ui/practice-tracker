@@ -15,6 +15,7 @@ import { LoginPage } from '../pages/LoginPage'
 import { UsersPage } from '../pages/UsersPage'
 import { StudentCheckinPage } from '../pages/StudentCheckinPage'
 import { StudentCheckinStartPage } from '../pages/StudentCheckinStartPage'
+import { StudentAccessLinksPage } from '../pages/StudentAccessLinksPage'
 
 export const router = createBrowserRouter([
   {
@@ -86,6 +87,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['admin', 'practice_supervisor', 'viewer']}>
             <StudentDetailsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'student-access-links',
+        element: (
+          <ProtectedRoute allowedRoles={['admin', 'practice_supervisor']}>
+            <StudentAccessLinksPage />
           </ProtectedRoute>
         ),
       },

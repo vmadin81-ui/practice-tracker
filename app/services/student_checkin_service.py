@@ -26,7 +26,9 @@ def start_student_session(
     db: Session,
     *,
     access_token: str,
+    device_id: str | None = None,
     device_label: str | None = None,
+    user_agent: str | None = None,
 ) -> StudentCheckinSessionStartResponse:
     link = get_active_student_access_link_by_hash(db, hash_token(access_token))
     if not link:
@@ -44,6 +46,9 @@ def start_student_session(
     )
 
     link.last_used_at = datetime.now()
+    link.usage_count = (link.usage_count or 0) + 1
+    link.last_device_id = device_id
+    link.last_device_label = device_label or user_agent
     db.commit()
 
     return StudentCheckinSessionStartResponse(

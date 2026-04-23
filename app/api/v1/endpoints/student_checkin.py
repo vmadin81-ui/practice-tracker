@@ -31,7 +31,9 @@ def start_session(
         return start_student_session(
             db,
             access_token=payload.access_token,
+            device_id=payload.device_id,
             device_label=payload.device_label,
+            user_agent=payload.user_agent,
         )
     except ValueError as exc:
         raise HTTPException(status_code=401, detail=str(exc)) from exc
