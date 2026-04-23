@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Toolbar } from '../components/ui/Toolbar'
 import { Modal } from '../components/ui/Modal'
 import { StudentAccessLinkForm } from '../components/forms/StudentAccessLinkForm'
@@ -13,7 +13,6 @@ import {
 } from '../hooks/useStudentAccessLinks'
 import { useToast } from '../hooks/useToast'
 import { extractErrorMessage } from '../utils/errors'
-import type { StudentAccessLinkItem } from '../types/studentAccessLink'
 import { useConfirm } from '../hooks/useConfirm'
 
 function buildCheckinUrl(rawToken: string) {
@@ -47,8 +46,23 @@ export function StudentAccessLinksPage() {
       {data && (
         <StudentAccessLinksTable
           items={data}
-          onShowQr={(item) => {
-            toast.info('QR можно показать после создания или перевыпуска ссылки')
+          onShowQr={async (item) => {
+            const ok = await confirm({
+              title: 'Показать ссылку?',
+              description: 'Будет создана новая ссылка, старая станет недействительной.',
+              confirmText: 'Перевыпустить и показать',
+            })
+            if (!ok) return
+
+            try {
+              const result = await reissueMutation.mutateAsync(item.id)
+              const checkinUrl = buildCheckinUrl(result.raw_access_token)
+              setQrStudentName(item.student?.full_name ?? `Студент #${item.student_id}`)
+              setQrUrl(checkinUrl)
+              toast.success('Новая ссылка создана')
+            } catch (err) {
+              toast.error('Не удалось получить ссылку', extractErrorMessage(err))
+            }
           }}
           onReissue={async (item) => {
             const ok = await confirm({
