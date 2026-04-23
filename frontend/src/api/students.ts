@@ -6,8 +6,29 @@ import type {
   StudentUpdatePayload,
 } from '../types/students'
 
-export function getStudents() {
-  return apiRequest<PaginatedResponse<StudentItem>>('/api/v1/students/?skip=0&limit=500')
+export function getStudents(params?: {
+  skip?: number
+  limit?: number
+  search?: string
+  groupId?: number
+  specialtyId?: number
+  isActive?: boolean
+}) {
+  const searchParams = new URLSearchParams({
+    skip: String(params?.skip ?? 0),
+    limit: String(params?.limit ?? 20),
+  })
+
+  if (params?.search) searchParams.set('search', params.search)
+  if (params?.groupId) searchParams.set('group_id', String(params.groupId))
+  if (params?.specialtyId) searchParams.set('specialty_id', String(params.specialtyId))
+  if (typeof params?.isActive === 'boolean') {
+    searchParams.set('is_active', String(params.isActive))
+  }
+
+  return apiRequest<PaginatedResponse<StudentItem>>(
+    `/api/v1/students/?${searchParams.toString()}`
+  )
 }
 
 export function getStudentById(studentId: number) {
