@@ -1,10 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from app.models.specialty import Specialty
 from app.models.student import Student
 from app.models.student_access_link import StudentAccessLink
-from app.models.study_group import StudyGroup
 
 
 def get_student_access_link(db: Session, link_id: int) -> StudentAccessLink | None:
