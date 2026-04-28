@@ -21,7 +21,11 @@ function buildCheckinUrl(rawToken: string) {
 
 export function StudentAccessLinksPage() {
   const { data, isLoading, error } = useStudentAccessLinks()
-  const studentsQuery = useStudents()
+  const studentsQuery = useStudents({
+    skip: 0,
+    limit: 500,
+    isActive: true,
+  })
   const createMutation = useCreateStudentAccessLink()
   const revokeMutation = useRevokeStudentAccessLink()
   const reissueMutation = useReissueStudentAccessLink()

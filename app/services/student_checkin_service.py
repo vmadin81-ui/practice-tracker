@@ -20,7 +20,7 @@ from app.schemas.student_checkin import (
     StudentCheckinSubmitResponse,
 )
 from app.services.geolocation_service import process_check_in
-
+from app.core.timezone import local_today, local_now
 
 def start_student_session(
     db: Session,
@@ -58,7 +58,7 @@ def start_student_session(
 
 
 def build_student_checkin_me(db: Session, *, student) -> StudentCheckinMeResponse:
-    today = datetime.now().date()
+    today = local_today()
     assignment = get_active_assignment_for_student_on_date(
         db,
         student_id=student.id,
@@ -104,7 +104,7 @@ def submit_student_checkin(
             latitude=payload.latitude,
             longitude=payload.longitude,
             accuracy_m=payload.accuracy_m,
-            sent_at=payload.device_time or datetime.now(),
+            sent_at=payload.device_time or local_now().replace(tzinfo=None),
             source="student_web",
         ),
     )

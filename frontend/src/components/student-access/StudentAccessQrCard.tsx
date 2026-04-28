@@ -8,8 +8,26 @@ type Props = {
 
 export function StudentAccessQrCard({ studentName, checkinUrl, onClose }: Props) {
   async function copyLink() {
-    await navigator.clipboard.writeText(checkinUrl)
-  }
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(checkinUrl)
+          return
+        }
+
+        const textArea = document.createElement('textarea')
+        textArea.value = checkinUrl
+        textArea.style.position = 'fixed'
+        textArea.style.left = '-9999px'
+        textArea.style.top = '-9999px'
+        document.body.appendChild(textArea)
+        textArea.focus()
+        textArea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textArea)
+      } catch {
+        window.prompt('Скопируйте ссылку вручную:', checkinUrl)
+      }
+    }
 
   return (
     <div className="panel">
