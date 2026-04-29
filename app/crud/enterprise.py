@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.models.enterprise import Enterprise
 from app.schemas.enterprise import EnterpriseCreate, EnterpriseUpdate
 
+from sqlalchemy import or_
 
 def get_enterprise(db: Session, enterprise_id: int) -> Enterprise | None:
     return db.get(Enterprise, enterprise_id)
@@ -25,6 +26,7 @@ def get_enterprises(
                 Enterprise.name.ilike(pattern),
                 Enterprise.address.ilike(pattern),
                 Enterprise.contact_person.ilike(pattern),
+                Enterprise.contact_phone.ilike(pattern),
             )
         )
 
