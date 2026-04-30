@@ -8,6 +8,9 @@ import  {
 import type { StudentAccessLinkCreatePayload } from '../types/studentAccessLink'
 
 export function useStudentAccessLinks(params?: {
+  skip?: number
+  limit?: number
+  search?: string
   studentId?: number
   isActive?: boolean
 }) {

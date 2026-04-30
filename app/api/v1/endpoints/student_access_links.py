@@ -18,22 +18,30 @@ from app.schemas.student_access_link import (
     StudentAccessLinkRead,
 )
 
+from app.schemas.common import PaginatedResponse
+
 router = APIRouter()
 
 
-@router.get("/", response_model=list[StudentAccessLinkRead])
+@router.get("/", response_model=PaginatedResponse[StudentAccessLinkRead])
 def get_links(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=20, ge=1, le=500),
+    search: str | None = Query(default=None),
     student_id: int | None = Query(default=None),
     is_active: bool | None = Query(default=None),
     _: User = Depends(require_roles("admin", "practice_supervisor", "viewer")),
     db: Session = Depends(get_db),
 ):
-    return list_student_access_links(
+    total, items = list_student_access_links(
         db,
+        skip=skip,
+        limit=limit,
+        search=search,
         student_id=student_id,
         is_active=is_active,
     )
-
+    return {"total": total, "items": items}
 
 @router.post("/", response_model=StudentAccessLinkCreateResponse, status_code=status.HTTP_201_CREATED)
 def create_link(

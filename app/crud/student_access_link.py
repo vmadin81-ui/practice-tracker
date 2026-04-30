@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, or_, func
 from sqlalchemy.orm import Session, selectinload
 
 from app.models.student import Student
@@ -21,11 +21,15 @@ def get_student_access_link(db: Session, link_id: int) -> StudentAccessLink | No
 def list_student_access_links(
     db: Session,
     *,
+    skip: int = 0,
+    limit: int = 20,
+    search: str | None = None,
     student_id: int | None = None,
     is_active: bool | None = None,
-) -> list[StudentAccessLink]:
+) -> tuple[int, list[StudentAccessLink]]:
     stmt = (
         select(StudentAccessLink)
+        .join(Student, Student.id == StudentAccessLink.student_id)
         .options(
             selectinload(StudentAccessLink.student).selectinload(Student.group),
             selectinload(StudentAccessLink.student).selectinload(Student.specialty),
@@ -40,8 +44,21 @@ def list_student_access_links(
     if is_active is not None:
         stmt = stmt.where(StudentAccessLink.is_active == is_active)
 
-    return list(db.scalars(stmt).all())
+    if search:
+        pattern = f"%{search}%"
+        stmt = stmt.where(
+            or_(
+                Student.full_name.ilike(pattern),
+                StudentAccessLink.label.ilike(pattern),
+                StudentAccessLink.last_device_label.ilike(pattern),
+            )
+        )
 
+    count_stmt = select(func.count()).select_from(stmt.order_by(None).subquery())
+    total = db.scalar(count_stmt) or 0
+
+    items = db.scalars(stmt.offset(skip).limit(limit)).all()
+    return total, list(items)
 
 def create_student_access_link_obj(
     db: Session,

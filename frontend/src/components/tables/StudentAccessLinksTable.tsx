@@ -1,4 +1,5 @@
 import type { StudentAccessLinkItem } from '../../types/studentAccessLink'
+import { TableContainer } from '../ui/TableContainer'
 
 type Props = {
   items: StudentAccessLinkItem[]
@@ -14,17 +15,18 @@ export function StudentAccessLinksTable({
   onRevoke,
 }: Props) {
   return (
-    <div className="panel">
+    <TableContainer title="Ссылки check-in">
       <table className="table">
         <thead>
           <tr>
             <th>ID</th>
             <th>Студент</th>
+            <th>Группа</th>
             <th>Метка</th>
             <th>Активна</th>
             <th>Истекает</th>
-            <th>Последнее устройство</th>
             <th>Использований</th>
+            <th>Последнее устройство</th>
             <th></th>
           </tr>
         </thead>
@@ -32,12 +34,13 @@ export function StudentAccessLinksTable({
           {items.map((item) => (
             <tr key={item.id}>
               <td>{item.id}</td>
-              <td>{item.student?.full_name ?? item.student_id}</td>
-              <td>{item.label ?? '—'}</td>
+              <td className="truncate-cell">{item.student?.full_name ?? item.student_id}</td>
+              <td>{item.student?.group?.name ?? '—'}</td>
+              <td className="truncate-cell">{item.label ?? '—'}</td>
               <td>{item.is_active ? 'Да' : 'Нет'}</td>
               <td>{item.expires_at ?? '—'}</td>
-              <td>{item.last_device_label ?? '—'}</td>
               <td>{item.usage_count}</td>
+              <td className="truncate-cell">{item.last_device_label ?? '—'}</td>
               <td>
                 <div className="table-actions">
                   <button className="secondary-btn" onClick={() => onShowQr(item)}>
@@ -57,6 +60,6 @@ export function StudentAccessLinksTable({
           ))}
         </tbody>
       </table>
-    </div>
+    </TableContainer>
   )
 }

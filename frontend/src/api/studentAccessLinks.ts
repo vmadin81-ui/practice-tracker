@@ -1,4 +1,5 @@
 import { apiRequest } from './client'
+import type { PaginatedResponse } from '../types/common'
 import type {
   StudentAccessLinkCreatePayload,
   StudentAccessLinkCreateResponse,
@@ -6,18 +7,26 @@ import type {
 } from '../types/studentAccessLink'
 
 export function getStudentAccessLinks(params?: {
+  skip?: number
+  limit?: number
+  search?: string
   studentId?: number
   isActive?: boolean
 }) {
-  const search = new URLSearchParams()
+  const searchParams = new URLSearchParams({
+    skip: String(params?.skip ?? 0),
+    limit: String(params?.limit ?? 20),
+  })
 
-  if (params?.studentId) search.set('student_id', String(params.studentId))
+  if (params?.search) searchParams.set('search', params.search)
+  if (params?.studentId) searchParams.set('student_id', String(params.studentId))
   if (typeof params?.isActive === 'boolean') {
-    search.set('is_active', String(params.isActive))
+    searchParams.set('is_active', String(params.isActive))
   }
 
-  const suffix = search.toString() ? `?${search.toString()}` : ''
-  return apiRequest<StudentAccessLinkItem[]>(`/api/v1/student-access-links/${suffix}`)
+  return apiRequest<PaginatedResponse<StudentAccessLinkItem>>(
+    `/api/v1/student-access-links/?${searchParams.toString()}`
+  )
 }
 
 export function createStudentAccessLink(payload: StudentAccessLinkCreatePayload) {
