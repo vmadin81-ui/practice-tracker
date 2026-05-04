@@ -1,30 +1,33 @@
-import { apiFetch } from './client'
-import type { PaginatedDailyStatuses } from '../types/dailyStatus'
+import { apiRequest } from './client'
+import type { PaginatedResponse } from '../types/common'
+import type { DailyStatusItem } from '../types/dailyStatus'
 
 export function getDailyStatuses(params: {
-  statusDate: string
-  statusColor?: string
+  statusDate?: string
   groupId?: number
   enterpriseId?: number
+  statusColor?: string
   skip?: number
   limit?: number
 }) {
-  const search = new URLSearchParams({
-    status_date: params.statusDate,
+  const searchParams = new URLSearchParams({
     skip: String(params.skip ?? 0),
-    limit: String(params.limit ?? 100),
+    limit: String(params.limit ?? 20),
   })
 
-  if (params.statusColor) search.set('status_color', params.statusColor)
-  if (params.groupId) search.set('group_id', String(params.groupId))
-  if (params.enterpriseId) search.set('enterprise_id', String(params.enterpriseId))
+  if (params.statusDate) searchParams.set('status_date', params.statusDate)
+  if (params.groupId) searchParams.set('group_id', String(params.groupId))
+  if (params.enterpriseId) searchParams.set('enterprise_id', String(params.enterpriseId))
+  if (params.statusColor) searchParams.set('status_color', params.statusColor)
 
-  return apiFetch<PaginatedDailyStatuses>(`/api/v1/daily-statuses/?${search.toString()}`)
+  return apiRequest<PaginatedResponse<DailyStatusItem>>(
+    `/api/v1/daily-statuses/?${searchParams.toString()}`
+  )
 }
 
-export async function recalculateDailyStatuses(statusDate: string): Promise<{ message: string }> {
-  return apiFetch<{ message: string }>(
-    `/api/v1/daily-statuses/recalculate?status_date=${encodeURIComponent(statusDate)}`,
+export function recalculateDailyStatuses(statusDate: string) {
+  return apiRequest<{ message: string }>(
+    `/api/v1/daily-statuses/recalculate?status_date=${statusDate}`,
     {
       method: 'POST',
     }
