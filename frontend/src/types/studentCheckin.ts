@@ -16,6 +16,8 @@ export type StudentCheckinMeResponse = {
   today_checkins_count: number
   required_checkins_per_day: number | null
   status_message: string
+  has_geolocation_consent: boolean
+  consent_text_version: string
 }
 
 export type StudentCheckinSubmitResponse = {
@@ -39,4 +41,9 @@ export type StudentCheckinHistoryItem = {
 export type StudentCheckinHistoryResponse = {
   total: number
   items: StudentCheckinHistoryItem[]
+}
+
+export type StudentConsentSubmitResponse = {
+  has_geolocation_consent: boolean
+  consent_text_version: string
 }

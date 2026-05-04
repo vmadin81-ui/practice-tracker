@@ -114,3 +114,28 @@ export async function getStudentCheckinHistory() {
 
   return response.json() as Promise<StudentCheckinHistoryResponse>
 }
+
+export async function acceptStudentGeolocationConsent() {
+  const token = getStudentToken()
+
+  const response = await fetch('/api/v1/student-checkin/consent', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      is_accepted: true,
+      device_id: getOrCreateDeviceId(),
+      device_label: getDeviceLabel(),
+      user_agent: navigator.userAgent,
+    }),
+  })
+
+  if (!response.ok) {
+    const text = await response.text()
+    throw new Error(text || 'Failed to accept consent')
+  }
+
+  return response.json()
+}

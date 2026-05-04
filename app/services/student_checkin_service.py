@@ -22,6 +22,9 @@ from app.schemas.student_checkin import (
 from app.services.geolocation_service import process_check_in
 from app.core.timezone import local_today, local_now
 
+from sqlalchemy import select
+from app.models.student_data_consent import StudentDataConsent
+
 def start_student_session(
     db: Session,
     *,
@@ -88,6 +91,8 @@ def build_student_checkin_me(db: Session, *, student) -> StudentCheckinMeRespons
         today_checkins_count=today_count,
         required_checkins_per_day=assignment.required_checkins_per_day if assignment else None,
         status_message=status_message,
+        has_geolocation_consent=has_student_geolocation_consent(db, student_id=student.id),
+        consent_text_version=CONSENT_VERSION,
     )
 
 
@@ -97,6 +102,9 @@ def submit_student_checkin(
     student,
     payload: StudentCheckinSubmitRequest,
 ) -> StudentCheckinSubmitResponse:
+    if not has_student_geolocation_consent(db, student_id=student.id):
+        raise ValueError("Consent for geolocation data processing is required")
+
     result = process_check_in(
         db,
         payload=GeolocationCheckInRequest(
@@ -147,3 +155,46 @@ def build_student_checkin_history(
             for item in items
         ],
     )
+
+
+CONSENT_VERSION = "v1"
+
+
+def has_student_geolocation_consent(db: Session, *, student_id: int) -> bool:
+    stmt = (
+        select(StudentDataConsent)
+        .where(
+            StudentDataConsent.student_id == student_id,
+            StudentDataConsent.consent_type == "geolocation",
+            StudentDataConsent.consent_text_version == CONSENT_VERSION,
+            StudentDataConsent.is_accepted.is_(True),
+        )
+        .order_by(StudentDataConsent.accepted_at.desc())
+    )
+    return db.scalar(stmt) is not None
+
+
+def accept_student_geolocation_consent(
+    db: Session,
+    *,
+    student,
+    device_id: str | None,
+    device_label: str | None,
+    user_agent: str | None,
+):
+    obj = StudentDataConsent(
+        student_id=student.id,
+        consent_type="geolocation",
+        consent_text_version=CONSENT_VERSION,
+        is_accepted=True,
+        device_id=device_id,
+        device_label=device_label,
+        user_agent=user_agent,
+    )
+    db.add(obj)
+    db.commit()
+
+    return {
+        "has_geolocation_consent": True,
+        "consent_text_version": CONSENT_VERSION,
+    }

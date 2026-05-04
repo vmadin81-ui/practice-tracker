@@ -817,3 +817,25 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+.consent-box {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #7c2d12;
+  border-radius: 14px;
+  padding: 14px;
+  line-height: 1.4;
+}
+
+.consent-box input {
+  margin-top: 3px;
+}
+
+.consent-box-accepted {
+  background: #ecfdf5;
+  border-color: #bbf7d0;
+  color: #166534;
+}

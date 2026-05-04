@@ -6,6 +6,9 @@ import type { StudentCheckinHistoryResponse, StudentCheckinMeResponse, StudentCh
 import { useToast } from '../hooks/useToast'
 import { extractErrorMessage } from '../utils/errors'
 
+import { acceptStudentGeolocationConsent } from '../api/studentCheckin'
+import { StudentConsentBox } from '../components/student-checkin/StudentConsentBox'
+
 export function StudentCheckinPage() {
   const toast = useToast()
 
@@ -14,6 +17,8 @@ export function StudentCheckinPage() {
   const [lastResult, setLastResult] = useState<StudentCheckinSubmitResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  const [consentChecked, setConsentChecked] = useState(false)
 
   async function loadAll() {
     setIsLoading(true)
@@ -36,6 +41,24 @@ export function StudentCheckinPage() {
   }, [])
 
   async function handleSubmit() {
+    
+    if (!me.has_geolocation_consent && !consentChecked) {
+        toast.warning('Необходимо согласие', 'Поставьте отметку согласия на обработку геоданных')
+        return
+    }
+
+    if (!me.has_geolocation_consent && consentChecked) {
+      try {
+        await acceptStudentGeolocationConsent()
+        toast.success('Согласие сохранено')
+        await loadAll()
+      } catch (error) {
+        toast.error('Не удалось сохранить согласие', extractErrorMessage(error))
+        setIsSubmitting(false)
+        return
+      }
+    }
+    
     if (!navigator.geolocation) {
       toast.error('Геолокация недоступна', 'Браузер не поддерживает геолокацию')
       return
@@ -82,6 +105,13 @@ export function StudentCheckinPage() {
 
   return (
     <div className="student-checkin-page">
+      
+      <StudentConsentBox
+        hasConsent={me.has_geolocation_consent}
+        checked={consentChecked}
+        onCheckedChange={setConsentChecked}
+      />
+      
       <StudentCheckinCard
         me={me}
         lastResult={lastResult}

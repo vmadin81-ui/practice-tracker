@@ -19,6 +19,9 @@ from app.services.student_checkin_service import (
     submit_student_checkin,
 )
 
+from app.schemas.student_checkin import StudentConsentSubmitRequest, StudentConsentSubmitResponse
+from app.services.student_checkin_service import accept_student_geolocation_consent
+
 router = APIRouter()
 
 
@@ -53,7 +56,10 @@ def submit(
     db: Session = Depends(get_db),
     student: Student = Depends(get_current_student),
 ):
-    return submit_student_checkin(db, student=student, payload=payload)
+    try:
+        return submit_student_checkin(db, student=student, payload=payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.get("/history", response_model=StudentCheckinHistoryResponse)
@@ -68,4 +74,22 @@ def history(
         student_id=student.id,
         skip=skip,
         limit=limit,
+    )
+
+
+@router.post("/consent", response_model=StudentConsentSubmitResponse)
+def accept_consent(
+    payload: StudentConsentSubmitRequest,
+    db: Session = Depends(get_db),
+    student: Student = Depends(get_current_student),
+):
+    if not payload.is_accepted:
+        raise HTTPException(status_code=400, detail="Consent must be accepted")
+
+    return accept_student_geolocation_consent(
+        db,
+        student=student,
+        device_id=payload.device_id,
+        device_label=payload.device_label,
+        user_agent=payload.user_agent,
     )

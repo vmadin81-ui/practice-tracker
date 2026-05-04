@@ -29,6 +29,8 @@ class StudentCheckinMeResponse(BaseModel):
     today_checkins_count: int
     required_checkins_per_day: int | None
     status_message: str
+    has_geolocation_consent: bool
+    consent_text_version: str
 
 
 class StudentCheckinSubmitRequest(BaseModel):
@@ -62,3 +64,15 @@ class StudentCheckinHistoryItem(BaseModel):
 class StudentCheckinHistoryResponse(BaseModel):
     total: int
     items: list[StudentCheckinHistoryItem]
+
+
+class StudentConsentSubmitRequest(BaseModel):
+    is_accepted: bool
+    device_id: str | None = Field(default=None, max_length=255)
+    device_label: str | None = Field(default=None, max_length=255)
+    user_agent: str | None = Field(default=None, max_length=1000)
+
+
+class StudentConsentSubmitResponse(BaseModel):
+    has_geolocation_consent: bool
+    consent_text_version: str

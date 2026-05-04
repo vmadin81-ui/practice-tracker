@@ -11,6 +11,7 @@ from app.models.user import User
 from app.models.user_group_access import UserGroupAccess
 from app.models.student_access_link import StudentAccessLink
 from app.models.student_checkin_session import StudentCheckinSession
+from app.models.student_data_consent import StudentDataConsent
 
 __all__ = [
     "Base",
@@ -26,4 +27,5 @@ __all__ = [
     "UserGroupAccess",
     "StudentAccessLink",
     "StudentCheckinSession",
+    "StudentDataConsent",
 ]
