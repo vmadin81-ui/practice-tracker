@@ -1,4 +1,5 @@
 import type { PracticeAssignmentItem } from '../../types/practiceAssignments'
+import { TableContainer } from '../ui/TableContainer'
 
 type Props = {
   items: PracticeAssignmentItem[]
@@ -7,13 +8,14 @@ type Props = {
 
 export function PracticeAssignmentsTable({ items, onEdit }: Props) {
   return (
-    <div className="panel">
+    <TableContainer title="Назначения практики">
       <table className="table">
         <thead>
           <tr>
             <th>ID</th>
             <th>Студент</th>
             <th>Предприятие</th>
+            <th>Руководитель</th>
             <th>Период</th>
             <th>Check-in/день</th>
             <th>Активно</th>
@@ -24,8 +26,11 @@ export function PracticeAssignmentsTable({ items, onEdit }: Props) {
           {items.map((item) => (
             <tr key={item.id}>
               <td>{item.id}</td>
-              <td>{item.student?.full_name ?? item.student_id}</td>
-              <td>{item.enterprise?.name ?? item.enterprise_id}</td>
+              <td className="truncate-cell">{item.student?.full_name ?? item.student_id}</td>
+              <td className="truncate-cell">{item.enterprise?.name ?? item.enterprise_id}</td>
+              <td className="truncate-cell">
+                {item.supervisor_user?.full_name ?? item.supervisor_user?.username ?? '—'}
+              </td>
               <td>
                 {item.start_date} — {item.end_date}
               </td>
@@ -40,6 +45,6 @@ export function PracticeAssignmentsTable({ items, onEdit }: Props) {
           ))}
         </tbody>
       </table>
-    </div>
+    </TableContainer>
   )
 }

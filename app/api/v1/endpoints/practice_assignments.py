@@ -28,7 +28,7 @@ router = APIRouter()
 @router.get("/", response_model=PaginatedResponse[PracticeAssignmentReadDetailed])
 def list_practice_assignments(
     skip: int = Query(default=0, ge=0),
-    limit: int = Query(default=100, ge=1, le=500),
+    limit: int = Query(default=20, ge=1, le=500),
     student_id: int | None = None,
     enterprise_id: int | None = None,
     is_active: bool | None = None,
