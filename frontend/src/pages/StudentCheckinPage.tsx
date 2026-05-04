@@ -42,6 +42,11 @@ export function StudentCheckinPage() {
 
   async function handleSubmit() {
     
+    if (!me) {
+        toast.error('Данные студента не загружены')
+        return
+    }
+    
     if (!me.has_geolocation_consent && !consentChecked) {
         toast.warning('Необходимо согласие', 'Поставьте отметку согласия на обработку геоданных')
         return
