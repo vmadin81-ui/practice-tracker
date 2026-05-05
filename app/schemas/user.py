@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
-
+from app.schemas.group import StudyGroupShort
 
 UserRole = Literal["admin", "practice_supervisor", "viewer"]
 
@@ -45,3 +45,4 @@ class UserRead(BaseModel):
     created_at: datetime
     updated_at: datetime
     group_ids: list[int] = Field(default_factory=list)
+    groups: list[StudyGroupShort] = Field(default_factory=list)

@@ -34,6 +34,14 @@ def _to_user_read(user: User) -> UserRead:
         created_at=user.created_at,
         updated_at=user.updated_at,
         group_ids=get_user_group_ids(user),
+        groups=[
+            {
+                "id": access.group.id,
+                "name": access.group.name,
+            }
+            for access in user.group_accesses
+            if access.group is not None
+        ],
     )
 
 

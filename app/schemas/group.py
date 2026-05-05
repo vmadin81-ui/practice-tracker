@@ -34,3 +34,8 @@ class StudyGroupReadDetailed(ORMBaseSchema):
     specialty_id: int | None
     created_at: datetime
     specialty: SpecialtyRead | None = None
+
+
+class StudyGroupShort(ORMBaseSchema):
+    id: int
+    name: str

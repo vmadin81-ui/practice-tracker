@@ -32,6 +32,14 @@ export function DailyStatusesPage() {
     skip: 0,
     limit: 500,
   })
+  
+  const groupNameById = useMemo(() => {
+    const map = new Map<number, string>()
+    for (const group of groupsQuery.data?.items ?? []) {
+        map.set(group.id, group.name)
+    }
+    return map
+  }, [groupsQuery.data])
 
   const enterprisesQuery = useEnterprises({
     skip: 0,
@@ -92,7 +100,10 @@ export function DailyStatusesPage() {
 
       {data && (
         <>
-          <DailyStatusesTable items={data.items} />
+          <DailyStatusesTable
+            items={data.items}
+            groupNameById={groupNameById}
+          />
 
           <Pagination
             skip={skip}

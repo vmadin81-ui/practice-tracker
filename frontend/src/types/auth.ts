@@ -9,6 +9,10 @@ export type AuthUser = {
   created_at: string
   updated_at: string
   group_ids: number[]
+  groups: Array<{
+    id: number
+    name: string
+  }>
 }
 
 export type UserItem = AuthUser

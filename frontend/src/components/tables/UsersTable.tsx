@@ -33,7 +33,7 @@ export function UsersTable({ items, onEdit }: Props) {
               </td>
               <td>{item.is_active ? 'Да' : 'Нет'}</td>
               <td className="truncate-cell">
-                {item.group_ids.length ? item.group_ids.join(', ') : '—'}
+                {item.groups?.length ? item.groups.map((group) => group.name).join(', ') : '—'}
               </td>
               <td>{item.created_at}</td>
               <td>

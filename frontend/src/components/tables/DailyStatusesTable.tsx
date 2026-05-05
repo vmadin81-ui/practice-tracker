@@ -3,9 +3,10 @@ import { TableContainer } from '../ui/TableContainer'
 
 type Props = {
   items: DailyStatusItem[]
+  groupNameById: Map<number, string>
 }
 
-export function DailyStatusesTable({ items }: Props) {
+export function DailyStatusesTable({ items, groupNameById }: Props) {
   return (
     <TableContainer title="Статусы студентов">
       <table className="table">
@@ -30,7 +31,11 @@ export function DailyStatusesTable({ items }: Props) {
               <td className="truncate-cell">
                 {item.student?.full_name ?? item.student_id}
               </td>
-              <td>{item.student?.group_id ?? '—'}</td>
+              <td>
+              {item.student?.group_id
+                ? groupNameById.get(item.student.group_id) ?? item.student.group_id
+                : '—'}
+            </td>
               <td>
                 <span className={`status-badge status-${item.status_color}`}>
                   {item.status_color}

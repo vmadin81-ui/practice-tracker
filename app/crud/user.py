@@ -7,6 +7,7 @@ from app.models.user import User
 from app.models.user_group_access import UserGroupAccess
 from app.schemas.user import UserCreate, UserUpdate
 
+from sqlalchemy.orm import joinedload
 
 def get_user_by_username(db: Session, username: str) -> User | None:
     stmt = (
@@ -20,7 +21,9 @@ def get_user_by_username(db: Session, username: str) -> User | None:
 def get_user(db: Session, user_id: int) -> User | None:
     stmt = (
         select(User)
-        .options(selectinload(User.group_accesses))
+        .options(
+            selectinload(User.group_accesses).selectinload(UserGroupAccess.group)
+        )
         .where(User.id == user_id)
     )
     return db.scalar(stmt)
@@ -35,7 +38,13 @@ def list_users(
     role: str | None = None,
     is_active: bool | None = None,
 ) -> tuple[int, list[User]]:
-    stmt = select(User).options(selectinload(User.group_accesses)).order_by(User.id)
+    stmt = (
+        select(User)
+        .options(
+            selectinload(User.group_accesses).selectinload(UserGroupAccess.group)
+        )
+        .order_by(User.id)
+    )
 
     if search:
         pattern = f"%{search}%"
