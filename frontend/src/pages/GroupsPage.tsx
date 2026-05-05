@@ -35,10 +35,7 @@ export function GroupsPage() {
 
   const { data, isLoading, error } = useGroups(params)
 
-  const specialtiesQuery = useSpecialties({
-    skip: 0,
-    limit: 500,
-  })
+  const specialtiesQuery = useSpecialties()
 
   const createMutation = useCreateGroup()
   const updateMutation = useUpdateGroup()
