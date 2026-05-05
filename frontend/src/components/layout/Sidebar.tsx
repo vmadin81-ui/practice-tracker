@@ -29,7 +29,11 @@ export function Sidebar() {
         <NavLink to="/geolocation-logs" className="sidebar-link">
           Журнал геолокации
         </NavLink>
-
+        
+        <NavLink to="/enterprise-summary" className="sidebar-link">
+          Отчёт по предприятиям
+        </NavLink>
+      
         <div className="sidebar-section">Справочники</div>
         
         {isAdmin && (
@@ -67,11 +71,7 @@ export function Sidebar() {
             Назначения
           </NavLink>
         )}
-        
-        <NavLink to="/enterprise-summary" className="sidebar-link">
-          Отчёт по предприятиям
-        </NavLink>
-      
+                
       </nav>
 
       <div className="sidebar-footer">
