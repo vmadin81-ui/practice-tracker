@@ -1,4 +1,5 @@
 import type { AuthUser, TokenResponse, UserCreatePayload, UserItem } from '../types/auth'
+import type { PaginatedResponse } from '../types/common'
 import { apiRequest } from './client'
 
 export async function loginRequest(username: string, password: string): Promise<TokenResponse> {
@@ -37,9 +38,27 @@ export async function getCurrentUser(token: string): Promise<AuthUser> {
   return response.json()
 }
 
-export function getUsers(role?: string) {
-  const suffix = role ? `?role=${encodeURIComponent(role)}` : ''
-  return apiRequest<UserItem[]>(`/api/v1/auth/users${suffix}`)
+export function getUsers(params?: {
+  skip?: number
+  limit?: number
+  search?: string
+  role?: string
+  isActive?: boolean
+}) {
+  const searchParams = new URLSearchParams({
+    skip: String(params?.skip ?? 0),
+    limit: String(params?.limit ?? 20),
+  })
+
+  if (params?.search) searchParams.set('search', params.search)
+  if (params?.role) searchParams.set('role', params.role)
+  if (typeof params?.isActive === 'boolean') {
+    searchParams.set('is_active', String(params.isActive))
+  }
+
+  return apiRequest<PaginatedResponse<UserItem>>(
+    `/api/v1/auth/users?${searchParams.toString()}`
+  )
 }
 
 export function createUser(payload: UserCreatePayload) {

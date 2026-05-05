@@ -59,7 +59,12 @@ export function PracticeAssignmentsPage() {
     isActive: true,
   })
 
-  const supervisorsQuery = useUsers('practice_supervisor')
+  const supervisorsQuery = useUsers({
+    skip: 0,
+    limit: 500,
+    role: 'practice_supervisor',
+    isActive: true,
+  })
 
   const createMutation = useCreatePracticeAssignment()
   const updateMutation = useUpdatePracticeAssignment()
@@ -121,7 +126,7 @@ export function PracticeAssignmentsPage() {
           <PracticeAssignmentForm
             students={studentsQuery.data?.items ?? []}
             enterprises={enterprisesQuery.data?.items ?? []}
-            supervisors={supervisorsQuery.data ?? []}
+            supervisors={supervisorsQuery.data?.items ?? []}
             initialValue={editing}
             onSubmit={async (payload) => {
               try {

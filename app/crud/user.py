@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import or_, select, func
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.security import get_password_hash, verify_password
@@ -26,11 +26,37 @@ def get_user(db: Session, user_id: int) -> User | None:
     return db.scalar(stmt)
 
 
-def list_users(db: Session, role: str | None = None) -> list[User]:
+def list_users(
+    db: Session,
+    *,
+    skip: int = 0,
+    limit: int = 20,
+    search: str | None = None,
+    role: str | None = None,
+    is_active: bool | None = None,
+) -> tuple[int, list[User]]:
     stmt = select(User).options(selectinload(User.group_accesses)).order_by(User.id)
-    if role is not None:
+
+    if search:
+        pattern = f"%{search}%"
+        stmt = stmt.where(
+            or_(
+                User.username.ilike(pattern),
+                User.full_name.ilike(pattern),
+            )
+        )
+
+    if role:
         stmt = stmt.where(User.role == role)
-    return list(db.scalars(stmt).all())
+
+    if is_active is not None:
+        stmt = stmt.where(User.is_active == is_active)
+
+    count_stmt = select(func.count()).select_from(stmt.order_by(None).subquery())
+    total = db.scalar(count_stmt) or 0
+
+    items = db.scalars(stmt.offset(skip).limit(limit)).all()
+    return total, list(items)
 
 
 def authenticate_user(db: Session, username: str, password: str) -> User | None:

@@ -19,6 +19,8 @@ from app.models.user import User
 from app.schemas.auth import TokenResponse
 from app.schemas.user import UserCreate, UserRead, UserUpdate
 
+from app.schemas.common import PaginatedResponse
+
 router = APIRouter()
 
 
@@ -57,13 +59,28 @@ def me(current_user: User = Depends(get_current_user)):
     return _to_user_read(current_user)
 
 
-@router.get("/users", response_model=list[UserRead])
+@router.get("/users", response_model=PaginatedResponse[UserRead])
 def get_users(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=20, ge=1, le=500),
+    search: str | None = Query(default=None),
     role: str | None = Query(default=None),
+    is_active: bool | None = Query(default=None),
     _: User = Depends(require_roles("admin")),
     db: Session = Depends(get_db),
 ):
-    return [_to_user_read(user) for user in list_users(db, role=role)]
+    total, items = list_users(
+        db,
+        skip=skip,
+        limit=limit,
+        search=search,
+        role=role,
+        is_active=is_active,
+    )
+    return {
+        "total": total,
+        "items": [_to_user_read(user) for user in items],
+    }
 
 
 @router.post("/users", response_model=UserRead, status_code=status.HTTP_201_CREATED)

@@ -2,10 +2,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createUser, getUsers, updateUser } from '../api/auth'
 import type { UserCreatePayload } from '../types/auth'
 
-export function useUsers(role?: string) {
+export function useUsers(params?: {
+  skip?: number
+  limit?: number
+  search?: string
+  role?: string
+  isActive?: boolean
+}) {
   return useQuery({
-    queryKey: ['users', role],
-    queryFn: () => getUsers(role),
+    queryKey: ['users', params],
+    queryFn: () => getUsers(params),
   })
 }
 

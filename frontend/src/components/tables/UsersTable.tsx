@@ -1,4 +1,5 @@
 import type { UserItem } from '../../types/auth'
+import { TableContainer } from '../ui/TableContainer'
 
 type Props = {
   items: UserItem[]
@@ -7,7 +8,7 @@ type Props = {
 
 export function UsersTable({ items, onEdit }: Props) {
   return (
-    <div className="panel">
+    <TableContainer title="Список пользователей">
       <table className="table">
         <thead>
           <tr>
@@ -16,7 +17,8 @@ export function UsersTable({ items, onEdit }: Props) {
             <th>ФИО</th>
             <th>Роль</th>
             <th>Активен</th>
-            <th>Группы</th>
+            <th>Группы доступа</th>
+            <th>Создан</th>
             <th></th>
           </tr>
         </thead>
@@ -24,11 +26,16 @@ export function UsersTable({ items, onEdit }: Props) {
           {items.map((item) => (
             <tr key={item.id}>
               <td>{item.id}</td>
-              <td>{item.username}</td>
-              <td>{item.full_name ?? '—'}</td>
-              <td>{item.role}</td>
+              <td className="truncate-cell">{item.username}</td>
+              <td className="truncate-cell">{item.full_name ?? '—'}</td>
+              <td>
+                <span className="role-badge">{item.role}</span>
+              </td>
               <td>{item.is_active ? 'Да' : 'Нет'}</td>
-              <td>{item.group_ids.length ? item.group_ids.join(', ') : '—'}</td>
+              <td className="truncate-cell">
+                {item.group_ids.length ? item.group_ids.join(', ') : '—'}
+              </td>
+              <td>{item.created_at}</td>
               <td>
                 <button className="secondary-btn" onClick={() => onEdit(item)}>
                   Редактировать
@@ -38,6 +45,6 @@ export function UsersTable({ items, onEdit }: Props) {
           ))}
         </tbody>
       </table>
-    </div>
+    </TableContainer>
   )
 }
