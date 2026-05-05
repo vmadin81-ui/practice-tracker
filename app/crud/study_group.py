@@ -17,17 +17,27 @@ def get_group(db: Session, group_id: int) -> StudyGroup | None:
 def get_groups(
     db: Session,
     skip: int = 0,
-    limit: int = 100,
-) -> tuple[int, list[StudyGroup]]:
-    total = db.scalar(select(func.count()).select_from(StudyGroup)) or 0
+    limit: int = 20,
+    search: str | None = None,
+    specialty_id: int | None = None,
+):
     stmt = (
         select(StudyGroup)
         .options(selectinload(StudyGroup.specialty))
         .order_by(StudyGroup.id)
-        .offset(skip)
-        .limit(limit)
     )
-    items = db.scalars(stmt).all()
+
+    if search:
+        pattern = f"%{search}%"
+        stmt = stmt.where(StudyGroup.name.ilike(pattern))
+
+    if specialty_id is not None:
+        stmt = stmt.where(StudyGroup.specialty_id == specialty_id)
+
+    count_stmt = select(func.count()).select_from(stmt.order_by(None).subquery())
+    total = db.scalar(count_stmt) or 0
+
+    items = db.scalars(stmt.offset(skip).limit(limit)).all()
     return total, list(items)
 
 

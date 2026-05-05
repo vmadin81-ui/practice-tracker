@@ -14,16 +14,25 @@ from app.models.student import Student
 from app.schemas.common import MessageResponse, PaginatedResponse
 from app.schemas.group import StudyGroupCreate, StudyGroupReadDetailed, StudyGroupUpdate
 
+
 router = APIRouter()
 
 
 @router.get("/", response_model=PaginatedResponse[StudyGroupReadDetailed])
 def list_groups(
     skip: int = Query(default=0, ge=0),
-    limit: int = Query(default=100, ge=1, le=500),
+    limit: int = Query(default=20, ge=1, le=500),
+    search: str | None = Query(default=None),
+    specialty_id: int | None = Query(default=None),
     db: Session = Depends(get_db),
 ):
-    total, items = get_groups(db=db, skip=skip, limit=limit)
+    total, items = get_groups(
+        db=db,
+        skip=skip,
+        limit=limit,
+        search=search,
+        specialty_id=specialty_id,
+    )
     return {"total": total, "items": items}
 
 

@@ -10,7 +10,7 @@ export function getGroups(params?: {
 }) {
   const searchParams = new URLSearchParams({
     skip: String(params?.skip ?? 0),
-    limit: String(params?.limit ?? 500),
+    limit: String(params?.limit ?? 20),
   })
 
   if (params?.search) searchParams.set('search', params.search)
