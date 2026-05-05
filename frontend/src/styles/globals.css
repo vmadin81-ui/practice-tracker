@@ -867,3 +867,8 @@ a {
 .filters-grid-1 {
   grid-template-columns: 1fr;
 }
+.dashboard-note {
+  margin: 8px 0 12px;
+  font-size: 13px;
+  color: #6b7280;
+}

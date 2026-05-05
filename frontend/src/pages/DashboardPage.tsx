@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { DashboardFilters } from '../components/filters/DashboardFilters'
 import { StatCard } from '../components/dashboard/StatCard'
 import { GroupSummaryTable } from '../components/dashboard/GroupSummaryTable'
@@ -18,8 +18,16 @@ export function DashboardPage() {
   const [groupId, setGroupId] = useState('')
   const [enterpriseId, setEnterpriseId] = useState('')
 
-  const groupsQuery = useGroups()
-  const enterprisesQuery = useEnterprises()
+  const groupsQuery = useGroups({
+    skip: 0,
+    limit: 500,
+  })
+
+  const enterprisesQuery = useEnterprises({
+    skip: 0,
+    limit: 500,
+    isActive: true,
+  })
 
   const numericGroupId = groupId ? Number(groupId) : undefined
   const numericEnterpriseId = enterpriseId ? Number(enterpriseId) : undefined
@@ -32,6 +40,14 @@ export function DashboardPage() {
   )
 
   const recalcMutation = useRecalculateStatuses(statusDate)
+
+  const topEnterprises = useMemo(() => {
+    if (!data) return []
+
+    return [...data.by_enterprises]
+      .sort((a, b) => b.counters.total - a.counters.total)
+      .slice(0, 10)
+  }, [data])
 
   return (
     <div className="page-grid">
@@ -66,7 +82,18 @@ export function DashboardPage() {
 
           <div className="summary-grid">
             <GroupSummaryTable items={data.by_groups} />
-            <EnterpriseSummaryTable items={data.by_enterprises} />
+
+            <div>
+              <EnterpriseSummaryTable items={topEnterprises} />
+
+              {data.by_enterprises.length > 10 && (
+                <div className="dashboard-note">
+                  Показаны 10 крупнейших предприятий по количеству студентов.
+                  Всего предприятий в сводке: {data.by_enterprises.length}.
+                  Полный список будет вынесен в отдельный отчёт.
+                </div>
+              )}
+            </div>
           </div>
         </>
       )}
