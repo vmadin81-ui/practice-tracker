@@ -67,13 +67,10 @@ export function Sidebar() {
             Назначения
           </NavLink>
         )}
-      
-      
-      <div className="sidebar-section">Аналитика</div>
-      
-      <NavLink to="/analytics" className="sidebar-link">
-          Предприятия
-      </NavLink>
+        
+        <NavLink to="/enterprise-summary" className="sidebar-link">
+          Отчёт по предприятиям
+        </NavLink>
       
       </nav>
 

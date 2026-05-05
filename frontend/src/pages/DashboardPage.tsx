@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { DashboardFilters } from '../components/filters/DashboardFilters'
 import { StatCard } from '../components/dashboard/StatCard'
 import { GroupSummaryTable } from '../components/dashboard/GroupSummaryTable'
@@ -86,11 +87,17 @@ export function DashboardPage() {
             <div>
               <EnterpriseSummaryTable items={topEnterprises} />
 
+              <div className="dashboard-note">
+                Показаны 10 крупнейших предприятий по количеству студентов.
+              </div>
+
+              <Link className="secondary-btn" to="/enterprise-summary">
+                Открыть полный отчёт по предприятиям
+              </Link>
+
               {data.by_enterprises.length > 10 && (
                 <div className="dashboard-note">
-                  Показаны 10 крупнейших предприятий по количеству студентов.
                   Всего предприятий в сводке: {data.by_enterprises.length}.
-                  Полный список будет вынесен в отдельный отчёт.
                 </div>
               )}
             </div>

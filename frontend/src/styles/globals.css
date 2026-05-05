@@ -867,6 +867,11 @@ a {
 .filters-grid-1 {
   grid-template-columns: 1fr;
 }
+.enterprise-report-checkbox {
+  align-self: end;
+  min-height: 38px;
+}
+
 .dashboard-note {
   margin: 8px 0 12px;
   font-size: 13px;

@@ -16,7 +16,7 @@ import { UsersPage } from '../pages/UsersPage'
 import { StudentCheckinPage } from '../pages/StudentCheckinPage'
 import { StudentCheckinStartPage } from '../pages/StudentCheckinStartPage'
 import { StudentAccessLinksPage } from '../pages/StudentAccessLinksPage'
-import { EnterpriseAnalyticsPage } from '../pages/EnterpriseAnalyticsPage'
+import { EnterpriseSummaryReportPage } from '../pages/EnterpriseSummaryReportPage'
 
 export const router = createBrowserRouter([
   {
@@ -140,10 +140,10 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'analytics',
+        path: 'enterprise-summary',
         element: (
-          <ProtectedRoute allowedRoles={['admin', 'practice_supervisor']}>
-            <EnterpriseAnalyticsPage />
+          <ProtectedRoute allowedRoles={['admin', 'practice_supervisor', 'viewer']}>
+            <EnterpriseSummaryReportPage />
           </ProtectedRoute>
         ),
       },
