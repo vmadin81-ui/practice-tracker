@@ -1,46 +1,67 @@
 import { useMemo, useState } from 'react'
-import { GeolocationLogFilters } from '../components/filters/GeolocationLogFilters'
+import { PageToolbar } from '../components/ui/PageToolbar'
+import { Pagination } from '../components/ui/Pagination'
+import { GeolocationLogsFilters } from '../components/filters/GeolocationLogsFilters'
 import { GeolocationLogsTable } from '../components/tables/GeolocationLogsTable'
 import { GeolocationSummaryCards } from '../components/geolocation/GeolocationSummaryCards'
 import { useGeolocationLogs } from '../hooks/useGeolocationLogs'
+import { useStudents } from '../hooks/useStudents'
 
-function todayIso(): string {
+const PAGE_SIZE = 20
+
+function todayIso() {
   return new Date().toISOString().slice(0, 10)
 }
 
 export function GeolocationLogsPage() {
+  const [skip, setSkip] = useState(0)
   const [dateFrom, setDateFrom] = useState(todayIso())
   const [dateTo, setDateTo] = useState(todayIso())
+  const [studentId, setStudentId] = useState('')
   const [source, setSource] = useState('')
-  const [search, setSearch] = useState('')
+  const [checkResult, setCheckResult] = useState('')
 
-  const { data, isLoading, error } = useGeolocationLogs({
-    dateFrom,
-    dateTo,
-    source: source || undefined,
+  const studentsQuery = useStudents({
+    skip: 0,
+    limit: 500,
+    isActive: true,
   })
 
-  const filteredItems = useMemo(() => {
-    const items = data?.items ?? []
-    if (!search.trim()) return items
+  const params = useMemo(() => {
+    return {
+      skip,
+      limit: PAGE_SIZE,
+      dateFrom: dateFrom || undefined,
+      dateTo: dateTo || undefined,
+      studentId: studentId ? Number(studentId) : undefined,
+      source: source || undefined,
+      checkResult: checkResult || undefined,
+    }
+  }, [skip, dateFrom, dateTo, studentId, source, checkResult])
 
-    const needle = search.trim().toLowerCase()
-    return items.filter((item) =>
-      (item.student?.full_name ?? '').toLowerCase().includes(needle)
-    )
-  }, [data?.items, search])
+  const { data, isLoading, error } = useGeolocationLogs(params)
+
+  function resetPagingAndSet(setter: (value: string) => void, value: string) {
+    setSkip(0)
+    setter(value)
+  }
 
   return (
     <div className="page-grid">
-      <GeolocationLogFilters
+      <PageToolbar title="Журнал геолокации" />
+
+      <GeolocationLogsFilters
         dateFrom={dateFrom}
+        onDateFromChange={(value) => resetPagingAndSet(setDateFrom, value)}
         dateTo={dateTo}
+        onDateToChange={(value) => resetPagingAndSet(setDateTo, value)}
+        studentId={studentId}
+        onStudentIdChange={(value) => resetPagingAndSet(setStudentId, value)}
         source={source}
-        search={search}
-        onDateFromChange={setDateFrom}
-        onDateToChange={setDateTo}
-        onSourceChange={setSource}
-        onSearchChange={setSearch}
+        onSourceChange={(value) => resetPagingAndSet(setSource, value)}
+        checkResult={checkResult}
+        onCheckResultChange={(value) => resetPagingAndSet(setCheckResult, value)}
+        students={studentsQuery.data?.items ?? []}
       />
 
       {isLoading && <div className="panel">Загрузка...</div>}
@@ -48,8 +69,15 @@ export function GeolocationLogsPage() {
 
       {data && (
         <>
-          <GeolocationSummaryCards items={filteredItems} />
-          <GeolocationLogsTable items={filteredItems} />
+          <GeolocationSummaryCards items={data.items} />
+          <GeolocationLogsTable items={data.items} />
+
+          <Pagination
+            skip={skip}
+            limit={PAGE_SIZE}
+            total={data.total}
+            onChange={setSkip}
+          />
         </>
       )}
     </div>

@@ -38,29 +38,40 @@ def create_check_in(
 def list_geolocation_logs(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=500),
+
     student_id: int | None = None,
     assignment_id: int | None = None,
+
     source: str | None = None,
+    check_result: str | None = None,  # 👈 добавили
+
     date: str | None = None,
     date_from: str | None = None,
     date_to: str | None = None,
+
     db: Session = Depends(get_db),
 ):
+    from datetime import date as dt_date
+
     date_value = None
     from_value = None
     to_value = None
 
+    # --- одиночная дата (приоритет)
     if date:
-        from datetime import date as dt_date
         date_value = dt_date.fromisoformat(date)
 
+    # --- диапазон
     if date_from:
-        from datetime import date as dt_date
         from_value = dt_date.fromisoformat(date_from)
 
     if date_to:
-        from datetime import date as dt_date
         to_value = dt_date.fromisoformat(date_to)
+
+    # --- если указана одна дата → превращаем в диапазон
+    if date_value:
+        from_value = date_value
+        to_value = date_value
 
     total, items = get_geolocation_logs(
         db=db,
@@ -69,10 +80,11 @@ def list_geolocation_logs(
         student_id=student_id,
         assignment_id=assignment_id,
         source=source,
-        date_value=date_value,
+        check_result=check_result,  # 👈 передаём дальше
         date_from=from_value,
         date_to=to_value,
     )
+
     return {"total": total, "items": items}
 
 

@@ -3,6 +3,7 @@ from datetime import date, datetime, time
 from sqlalchemy import and_, func, select
 from sqlalchemy.orm import Session, selectinload
 
+from app.models.geolocation_check import GeolocationCheck
 from app.models.geolocation_log import GeolocationLog
 
 
@@ -27,6 +28,7 @@ def get_geolocation_logs(
     student_id: int | None = None,
     assignment_id: int | None = None,
     source: str | None = None,
+    check_result: str | None = None,
     date_value: date | None = None,
     date_from: date | None = None,
     date_to: date | None = None,
@@ -45,6 +47,13 @@ def get_geolocation_logs(
 
     if source:
         stmt = stmt.where(GeolocationLog.source == source)
+
+    if check_result:
+        stmt = stmt.join(
+            GeolocationCheck,
+            GeolocationCheck.geolocation_log_id == GeolocationLog.id,
+        )
+        stmt = stmt.where(GeolocationCheck.check_result == check_result)
 
     if date_value is not None:
         start_dt = datetime.combine(date_value, time.min)

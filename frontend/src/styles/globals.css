@@ -839,3 +839,18 @@ a {
   border-color: #bbf7d0;
   color: #166534;
 }
+.filters-grid-5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+@media (max-width: 1300px) {
+  .filters-grid-5 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .filters-grid-5 {
+    grid-template-columns: 1fr;
+  }
+}
