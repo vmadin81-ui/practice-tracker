@@ -20,10 +20,16 @@ router = APIRouter()
 @router.get("/", response_model=PaginatedResponse[SpecialtyRead])
 def list_specialties(
     skip: int = Query(default=0, ge=0),
-    limit: int = Query(default=100, ge=1, le=500),
+    limit: int = Query(default=20, ge=1, le=500),
+    search: str | None = Query(default=None),
     db: Session = Depends(get_db),
 ):
-    total, items = get_specialties(db=db, skip=skip, limit=limit)
+    total, items = get_specialties(
+        db=db,
+        skip=skip,
+        limit=limit,
+        search=search,
+    )
     return {"total": total, "items": items}
 
 

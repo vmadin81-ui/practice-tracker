@@ -1,4 +1,4 @@
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.models.specialty import Specialty
@@ -12,12 +12,24 @@ def get_specialty(db: Session, specialty_id: int) -> Specialty | None:
 def get_specialties(
     db: Session,
     skip: int = 0,
-    limit: int = 100,
+    limit: int = 20,
+    search: str | None = None,
 ) -> tuple[int, list[Specialty]]:
-    total = db.scalar(select(func.count()).select_from(Specialty)) or 0
-    items = db.scalars(
-        select(Specialty).order_by(Specialty.id).offset(skip).limit(limit)
-    ).all()
+    stmt = select(Specialty).order_by(Specialty.id)
+
+    if search:
+        pattern = f"%{search}%"
+        stmt = stmt.where(
+            or_(
+                Specialty.code.ilike(pattern),
+                Specialty.name.ilike(pattern),
+            )
+        )
+
+    count_stmt = select(func.count()).select_from(stmt.order_by(None).subquery())
+    total = db.scalar(count_stmt) or 0
+
+    items = db.scalars(stmt.offset(skip).limit(limit)).all()
     return total, list(items)
 
 

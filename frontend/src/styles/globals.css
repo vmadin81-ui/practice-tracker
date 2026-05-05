@@ -864,3 +864,6 @@ a {
   font-size: 12px;
   font-weight: 600;
 }
+.filters-grid-1 {
+  grid-template-columns: 1fr;
+}
