@@ -83,6 +83,7 @@ def recalculate_student_daily_status(
     *,
     student_id: int,
     target_date: date,
+    commit: bool = True,
 ) -> StudentDailyStatus:
     student = db.get(Student, student_id)
     if not student:
@@ -123,8 +124,10 @@ def recalculate_student_daily_status(
         existing.required_checkins_count = assignment.required_checkins_per_day if assignment else 1
         existing.is_on_place = is_on_place
         existing.comment = comment
-        db.commit()
-        db.refresh(existing)
+        db.flush()
+        if commit:
+            db.commit()
+            db.refresh(existing)
         return existing
 
     obj = StudentDailyStatus(
@@ -140,8 +143,10 @@ def recalculate_student_daily_status(
         comment=comment,
     )
     db.add(obj)
-    db.commit()
-    db.refresh(obj)
+    db.flush()
+    if commit:
+        db.commit()
+        db.refresh(obj)
     return obj
 
 

@@ -50,6 +50,7 @@ def process_check_in(
     db: Session,
     *,
     payload: GeolocationCheckInRequest,
+    commit: bool = True,
 ) -> dict:
     student = db.get(Student, payload.student_id)
     if not student:
@@ -91,8 +92,10 @@ def process_check_in(
             comment="Для студента не найдено активное назначение практики на указанную дату",
         )
         db.add(check)
-        db.commit()
-        db.refresh(log)
+        db.flush()
+        if commit:
+            db.commit()
+            db.refresh(log)
         return {
             "geolocation_log_id": log.id,
             "student_id": log.student_id,
@@ -120,8 +123,10 @@ def process_check_in(
             comment="Для назначения практики не найдено предприятие",
         )
         db.add(check)
-        db.commit()
-        db.refresh(log)
+        db.flush()
+        if commit:
+            db.commit()
+            db.refresh(log)
         return {
             "geolocation_log_id": log.id,
             "student_id": log.student_id,
@@ -183,8 +188,10 @@ def process_check_in(
     )
 
     db.add(check)
-    db.commit()
-    db.refresh(log)
+    db.flush()
+    if commit:
+        db.commit()
+        db.refresh(log)
 
     return {
         "geolocation_log_id": log.id,
