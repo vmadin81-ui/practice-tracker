@@ -1,4 +1,5 @@
 .venv/
+venv/
 __pycache__/
 *.pyc
 *.pyo
@@ -9,3 +10,27 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 alembic/versions/*.pyc
+
+# Frontend dependencies and build output
+node_modules/
+frontend/dist/
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Coverage reports
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Temporary and tool-generated files
+*.tmp
+*.temp
+.cache/
