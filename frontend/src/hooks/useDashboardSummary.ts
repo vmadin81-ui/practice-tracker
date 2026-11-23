@@ -11,5 +11,7 @@ export function useDashboardSummary(
     queryKey: ['dashboard-summary', statusDate, groupId, enterpriseId, statusColor],
     queryFn: () => getDashboardSummary({ statusDate, groupId, enterpriseId, statusColor }),
     enabled: Boolean(statusDate),
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
   })
 }
