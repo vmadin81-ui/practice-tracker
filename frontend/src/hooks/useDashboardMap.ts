@@ -11,5 +11,7 @@ export function useDashboardMap(
     queryKey: ['dashboard-map', statusDate, groupId, enterpriseId, statusColor],
     queryFn: () => getDashboardMap({ statusDate, groupId, enterpriseId, statusColor }),
     enabled: Boolean(statusDate),
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
   })
 }

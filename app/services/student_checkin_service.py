@@ -1,8 +1,10 @@
 from datetime import datetime
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.student_security import expires_after_hours, generate_raw_token, hash_token
+from app.core.timezone import local_now, local_today
 from app.crud.student_checkin import (
     count_student_logs_for_date,
     create_student_checkin_session,
@@ -10,6 +12,8 @@ from app.crud.student_checkin import (
     get_active_student_access_link_by_hash,
     get_student_geolocation_history,
 )
+from app.models.student import Student
+from app.models.student_data_consent import StudentDataConsent
 from app.schemas.geolocation import GeolocationCheckInRequest
 from app.schemas.student_checkin import (
     StudentCheckinHistoryItem,
@@ -19,11 +23,8 @@ from app.schemas.student_checkin import (
     StudentCheckinSubmitRequest,
     StudentCheckinSubmitResponse,
 )
+from app.services.daily_status_service import recalculate_student_daily_status
 from app.services.geolocation_service import process_check_in
-from app.core.timezone import local_today, local_now
-
-from sqlalchemy import select
-from app.models.student_data_consent import StudentDataConsent
 
 def start_student_session(
     db: Session,
@@ -102,20 +103,40 @@ def submit_student_checkin(
     student,
     payload: StudentCheckinSubmitRequest,
 ) -> StudentCheckinSubmitResponse:
-    if not has_student_geolocation_consent(db, student_id=student.id):
-        raise ValueError("Consent for geolocation data processing is required")
-
-    result = process_check_in(
-        db,
-        payload=GeolocationCheckInRequest(
+    try:
+        check_in_payload = GeolocationCheckInRequest(
             student_id=student.id,
             latitude=payload.latitude,
             longitude=payload.longitude,
             accuracy_m=payload.accuracy_m,
             sent_at=payload.device_time or local_now().replace(tzinfo=None),
             source="student_web",
-        ),
-    )
+        )
+
+        if not has_student_geolocation_consent(db, student_id=student.id):
+            raise ValueError("Consent for geolocation data processing is required")
+
+        locked_student = db.scalar(
+            select(Student).where(Student.id == student.id).with_for_update()
+        )
+        if not locked_student:
+            raise ValueError("Student not found")
+
+        result = process_check_in(
+            db,
+            payload=check_in_payload,
+            commit=False,
+        )
+        recalculate_student_daily_status(
+            db,
+            student_id=student.id,
+            target_date=check_in_payload.sent_at.date(),
+            commit=False,
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
 
     return StudentCheckinSubmitResponse(
         geolocation_log_id=result["geolocation_log_id"],
